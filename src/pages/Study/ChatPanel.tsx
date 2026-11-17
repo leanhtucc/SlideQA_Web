@@ -99,7 +99,7 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
       <div className="chat-messages" role="log" aria-live="polite">
         {empty && (
           <Alert kind="info">
-            Hỏi về nội dung slide, bằng tiếng Việt có dấu hay không dấu. Câu trả lời chỉ dựa trên tài liệu trong phạm vi bạn chọn; bấm số nguồn <span className="cite">1</span> để
+            Bạn đang trò chuyện với trợ lý AI, không phải người thật. Hỏi về nội dung slide, bằng tiếng Việt có dấu hay không dấu. Câu trả lời chỉ dựa trên tài liệu trong phạm vi bạn chọn; bấm số nguồn <span className="cite">1</span> để
             xem đúng trang.
           </Alert>
         )}

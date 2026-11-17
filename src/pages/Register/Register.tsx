@@ -129,11 +129,11 @@ export default function Register() {
             />
             <span>
               Tôi đã đọc và đồng ý với{" "}
-              <Link to={PATH.TERMS} className="link-strong">
+              <Link to={PATH.TERMS} target="_blank" className="link-strong">
                 Điều khoản sử dụng
               </Link>{" "}
               và{" "}
-              <Link to={PATH.PRIVACY} className="link-strong">
+              <Link to={PATH.PRIVACY} target="_blank" className="link-strong">
                 Chính sách bảo vệ dữ liệu cá nhân
               </Link>
               .
