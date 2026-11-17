@@ -61,9 +61,9 @@ export default function Quizzes() {
             {items.map((q) => (
               <li key={q.id} className="doc-row" style={{ flexWrap: "wrap" }}>
                 <div style={{ flex: 1, minWidth: 200 }}>
-                  <div className="h4">{q.documentName ?? "Tài liệu đã bị xóa"}</div>
+                  <div className="h4">{q.documentName ?? (q.courseName ? `Cả môn ${q.courseName}` : "Tài liệu đã bị xóa")}</div>
                   <div className="small muted">
-                    Trang {q.fromPage}–{q.toPage} · {q.count} câu · tạo ngày {formatDayMonthFromIso(q.createdAt)}
+                    {q.fromPage !== null && `Trang ${q.fromPage}–${q.toPage} · `}{q.count} câu · tạo ngày {formatDayMonthFromIso(q.createdAt)}
                   </div>
                 </div>
                 <span className="small muted">{q.bestScore === null ? "Chưa làm" : `Tốt nhất ${q.bestScore}/${q.count} · ${q.attemptCount} lần`}</span>
@@ -71,7 +71,7 @@ export default function Quizzes() {
                   className="btn btn-secondary btn-sm"
                   disabled={start.isPending}
                   onClick={() => open(q.id)}
-                  aria-label={`Làm bài ${q.documentName ?? ""} trang ${q.fromPage}–${q.toPage}`}
+                  aria-label={`Làm bài ${q.documentName ?? q.courseName ?? ""}${q.fromPage !== null ? ` trang ${q.fromPage}–${q.toPage}` : ""}`}
                 >
                   Làm bài
                 </button>

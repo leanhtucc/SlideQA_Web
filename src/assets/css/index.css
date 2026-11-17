@@ -175,3 +175,4 @@ button.cite:hover, button.cite.active { box-shadow: 0 0 0 2px var(--primary); }
 .offline-banner { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px; background: var(--warn-soft); color: var(--warn); font-size: 14px; font-weight: 500; border-bottom: 1px solid var(--border); text-align: center; }
 .pdf-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px 0; color: var(--primary); }
 .toaster[popover]:not(:popover-open) { display: none; }
+.btn-ghost[aria-pressed="true"] { background: var(--primary-soft); box-shadow: inset 0 0 0 1px var(--primary); }

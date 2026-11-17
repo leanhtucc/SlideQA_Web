@@ -179,6 +179,29 @@ describe("không gian học", () => {
     expect(screen.queryByText(/Đã hiểu câu hỏi là/)).not.toBeInTheDocument();
   });
 
+  it("đánh giá câu trả lời: 👍 gửi API, bấm lại để bỏ đánh giá", async () => {
+    const api = backend(true, { "PUT /conversations/v1/messages/m2/feedback": ({ body }) => ({ json: { feedback: body.value } }) });
+    renderApp("/app/study/v1");
+    await ask("Gateway XOR là gì?");
+    const up = await screen.findByRole("button", { name: /Hữu ích/ });
+    await userEvent.click(up);
+    await waitFor(() => expect(up).toHaveAttribute("aria-pressed", "true"));
+    await userEvent.click(up);
+    await waitFor(() => expect(up).toHaveAttribute("aria-pressed", "false"));
+    const bodies = api.calls.filter((c) => c.path === "/conversations/v1/messages/m2/feedback").map((c) => c.body);
+    expect(bodies).toEqual([{ value: 1 }, { value: null }]);
+  });
+
+  it("đánh giá lỗi: hiện thông báo và giữ trạng thái cũ", async () => {
+    backend(true, { "PUT /conversations/v1/messages/m2/feedback": () => err(500, "internal", "x") });
+    renderApp("/app/study/v1");
+    await ask("Gateway XOR là gì?");
+    const down = await screen.findByRole("button", { name: /Chưa tốt/ });
+    await userEvent.click(down);
+    await waitFor(() => expect(down).not.toBeDisabled());
+    expect(down).toHaveAttribute("aria-pressed", "false");
+  });
+
   it("hội thoại không tồn tại: báo rõ và có đường về", async () => {
     backend(true, {
       "GET /conversations/v1": () => err(404, "not_found", "x"),

@@ -25,6 +25,7 @@ const QUIZ: QuizSummary = {
   documentId: "d1",
   courseId: "c1",
   documentName: "Slide BPMN.pdf",
+  courseName: "Quy trình",
   fromPage: 1,
   toPage: 10,
   count: 2,
@@ -168,5 +169,60 @@ describe("quiz", () => {
     await userEvent.click(await screen.findByRole("button", { name: "Tạo quiz mới" }));
     await userEvent.click(await screen.findByRole("button", { name: "Tạo quiz" }));
     expect(await screen.findByText("Không tạo được quiz lúc này. Hãy thử lại sau.")).toBeInTheDocument();
+  });
+
+  it("kết quả: báo câu có vấn đề gọi API và tải lại kết quả", async () => {
+    let flagged = false;
+    const api = backend(true, {
+      "PUT /quizzes/q1/items/i1/flag": () => {
+        flagged = true;
+        return { json: { flagged: true } };
+      },
+    });
+    renderApp("/app/attempts/a1");
+    await userEvent.click(await screen.findByRole("button", { name: /Một/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Câu sau" }));
+    await userEvent.click(await screen.findByRole("button", { name: /Hai/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Nộp bài" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Báo câu 1 có vấn đề" }));
+    await waitFor(() => expect(flagged).toBe(true));
+    expect(api.calls.find((c) => c.path === "/quizzes/q1/items/i1/flag")?.body).toEqual({ flagged: true });
+    expect(await screen.findByText(/Đã báo câu này/)).toBeInTheDocument();
+  });
+
+  it("kết quả: Làm lại câu sai tạo quiz mới rồi vào làm bài; đúng hết thì không có nút", async () => {
+    const api = backend(true, {
+      "POST /attempts/a1/retry-wrong": () => ({ status: 201, json: { id: "q2" } }),
+      "POST /quizzes/q2/attempts": () => ({ status: 201, json: { id: "a2", quizId: "q2", score: null, total: 1, durationS: null, startedAt: "2026-11-03T00:00:00Z", finishedAt: null, items: [item(1, { id: "r1", question: "Câu làm lại?" })] } }),
+      "GET /attempts/a2": () => ({ json: { id: "a2", quizId: "q2", score: null, total: 1, durationS: null, startedAt: "2026-11-03T00:00:00Z", finishedAt: null, items: [item(1, { id: "r1", question: "Câu làm lại?" })] } }),
+    });
+    renderApp("/app/attempts/a1");
+    await userEvent.click(await screen.findByRole("button", { name: /Một/ })); // sai
+    await userEvent.click(await screen.findByRole("button", { name: "Câu sau" }));
+    await userEvent.click(await screen.findByRole("button", { name: /Hai/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Nộp bài" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Làm lại 1 câu sai" }));
+    expect(await screen.findByRole("heading", { name: "Câu làm lại?" })).toBeInTheDocument();
+    expect(api.count("POST /attempts/a1/retry-wrong")).toBe(1);
+  });
+
+  it("tạo quiz cả môn: chọn phạm vi cả môn thì gửi courseId, không gửi trang", async () => {
+    const api = backend(true, {
+      "GET /courses": () => ({ json: [{ id: "c1", name: "Quy trình", code: null, term: null, examDate: null, createdAt: "2026-11-01T00:00:00Z", documentCount: 1, quizCount: 0 }] }),
+    });
+    renderApp("/app/quizzes");
+    await userEvent.click(await screen.findByRole("button", { name: "Tạo quiz mới" }));
+    await userEvent.selectOptions(await screen.findByLabelText("Phạm vi"), "course");
+    expect(screen.queryByLabelText("Từ trang")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Tạo quiz" }));
+    await waitFor(() => expect(api.count("POST /quizzes")).toBe(1));
+    expect(api.calls.find((c) => c.method === "POST" && c.path === "/quizzes")?.body).toEqual({ courseId: "c1", count: 5 });
+  });
+
+  it("quiz cả môn hiện tên môn trong danh sách", async () => {
+    backend(true, { "GET /quizzes": () => ({ json: [{ ...QUIZ, documentId: null, documentName: null, fromPage: null, toPage: null }] }) });
+    renderApp("/app/quizzes");
+    expect(await screen.findByText("Cả môn Quy trình")).toBeInTheDocument();
+    expect(screen.queryByText(/Trang null/)).not.toBeInTheDocument();
   });
 });

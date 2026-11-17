@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
+import Feedback from "./Feedback";
 
 interface Props {
+  conversationId: string;
   message: ChatMessage;
   /** Khóa nguồn đang được mở trên PDF: `${messageId}:${n}` */
   activeKey: string | null;
@@ -28,7 +30,7 @@ function withCitations(content: string, m: ChatMessage, activeKey: string | null
   });
 }
 
-export default function MessageBubble({ message: m, activeKey, onOpenSource }: Props) {
+export default function MessageBubble({ conversationId, message: m, activeKey, onOpenSource }: Props) {
   if (m.role === "user") return <div className="bubble-user">{m.content}</div>;
   return (
     <div className="bubble-ai">
@@ -68,6 +70,7 @@ export default function MessageBubble({ message: m, activeKey, onOpenSource }: P
         {m.mode === "extractive" && "Chưa qua AI: đây là các đoạn gốc liên quan nhất. Bấm nguồn để xem đúng trang."}
         {m.mode === "no-match" && "Không gọi AI vì không tìm thấy đoạn nào đủ liên quan."}
       </div>
+      <Feedback conversationId={conversationId} message={m} />
     </div>
   );
 }

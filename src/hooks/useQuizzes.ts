@@ -34,3 +34,17 @@ export function useFinishAttempt(attemptId: string) {
     },
   });
 }
+
+/** Báo câu có vấn đề: câu đó bị loại khỏi quiz nên tải lại lượt đang xem và danh sách quiz. */
+export function useFlagItem(attemptId: string, quizId: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (itemId: string) => api.flagItem(quizId, itemId, true),
+    onSuccess: () => Promise.all([qc.invalidateQueries({ queryKey: ["attempt", attemptId] }), qc.invalidateQueries({ queryKey: ["quizzes"] })]),
+  });
+}
+
+export const useRetryWrong = () => {
+  const qc = useQueryClient();
+  return useMutation({ mutationFn: api.retryWrong, onSuccess: () => qc.invalidateQueries({ queryKey: ["quizzes"] }) });
+};

@@ -4,16 +4,20 @@ interface QuizSummary {
   documentId: string | null;
   courseId: string | null;
   documentName: string | null;
-  fromPage: number;
-  toPage: number;
+  /** Có khi quiz theo cả môn (không có tài liệu hay khoảng trang riêng) */
+  courseName: string | null;
+  fromPage: number | null;
+  toPage: number | null;
   count: number;
   createdAt: string;
   attemptCount: number;
   bestScore: number | null;
 }
 
+/** Một tài liệu (kèm khoảng trang) hoặc cả môn: đúng một trong documentId, courseId */
 interface QuizInput {
-  documentId: string;
+  documentId?: string;
+  courseId?: string;
   fromPage?: number;
   toPage?: number;
   count: number;

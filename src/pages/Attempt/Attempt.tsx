@@ -6,8 +6,9 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import { createConversation } from "src/apis/conversations.api";
 import Alert from "src/components/Alert/Alert";
-import { PATH, studyPath } from "src/constants/paths";
-import { useAnswer, useAttempt, useFinishAttempt } from "src/hooks/useQuizzes";
+import { attemptPath, PATH, studyPath } from "src/constants/paths";
+import { toast } from "src/helpers/toast";
+import { useAnswer, useAttempt, useFinishAttempt, useFlagItem, useRetryWrong, useStartAttempt } from "src/hooks/useQuizzes";
 import MainLayout from "src/layouts/MainLayout";
 
 const LETTERS = ["A", "B", "C", "D"];
@@ -135,6 +136,31 @@ function Taking({ attempt }: { attempt: Attempt }) {
 function Result({ attempt }: { attempt: Attempt }) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const flag = useFlagItem(attempt.id, attempt.quizId);
+  const retry = useRetryWrong();
+  const start = useStartAttempt();
+  const wrong = attempt.items.filter((i) => i.isCorrect !== true).length;
+
+  /** Báo câu hỏi sai hoặc khó hiểu: câu bị loại khỏi các lần làm sau (FR-QZ-07). */
+  async function report(item: AttemptItem) {
+    try {
+      await flag.mutateAsync(item.id);
+      toast.success("Đã báo câu này. Nó sẽ không xuất hiện ở các lần làm sau.");
+    } catch (e) {
+      toast.error(msg(e, "Không báo được câu này, hãy thử lại."));
+    }
+  }
+
+  /** Làm lại riêng các câu sai và câu bỏ trống: tạo quiz mới từ chính các câu đó. */
+  async function redo() {
+    setError(null);
+    try {
+      const quiz = await retry.mutateAsync(attempt.id);
+      navigate(attemptPath((await start.mutateAsync(quiz.id)).id));
+    } catch (e) {
+      setError(msg(e, "Không tạo được bài làm lại, hãy thử lại."));
+    }
+  }
 
   /** Mở không gian học ở đúng trang của slide chứa câu này. */
   async function viewPage(item: AttemptItem) {
@@ -158,6 +184,11 @@ function Result({ attempt }: { attempt: Attempt }) {
         {mins !== null && <div className="small muted">Làm trong khoảng {mins} phút</div>}
       </div>
       {error && <Alert>{error}</Alert>}
+      {wrong > 0 && (
+        <Button variant="primary" loading={retry.isPending || start.isPending} loadingText="Đang tạo…" onClick={redo} style={{ alignSelf: "flex-start" }}>
+          Làm lại {wrong} câu sai
+        </Button>
+      )}
       <ol className="stack" style={{ gap: 12, paddingLeft: 0, listStyle: "none" }}>
         {attempt.items.map((it, n) => (
           <li key={it.id} className="card card-pad stack" style={{ gap: 8 }}>
@@ -179,11 +210,16 @@ function Result({ attempt }: { attempt: Attempt }) {
               </div>
             )}
             <div className="small muted">{it.explanation}</div>
-            {it.documentId && (
-              <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => viewPage(it)}>
-                Xem slide trang {it.page}
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {it.documentId && (
+                <button className="btn btn-ghost btn-sm" onClick={() => viewPage(it)}>
+                  Xem slide trang {it.page}
+                </button>
+              )}
+              <button className="btn btn-ghost btn-sm" disabled={flag.isPending} onClick={() => report(it)} aria-label={`Báo câu ${n + 1} có vấn đề`}>
+                Báo câu có vấn đề
               </button>
-            )}
+            </div>
           </li>
         ))}
       </ol>

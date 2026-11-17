@@ -16,3 +16,7 @@ export const setLlmConsent = (granted: boolean) =>
 export const listConversations = (q?: string) => request<Conversation[]>("GET", `/conversations${q ? `?q=${encodeURIComponent(q)}` : ""}`);
 export const renameConversation = (id: string, title: string) => request<Conversation>("PATCH", `/conversations/${id}`, { body: { title } });
 export const deleteConversation = (id: string) => request<null>("DELETE", `/conversations/${id}`);
+
+/** 1 = hữu ích, -1 = không hữu ích, null = bỏ đánh giá (FR-ASK-08). */
+export const setFeedback = (conversationId: string, messageId: string, value: 1 | -1 | null) =>
+  request<{ feedback: 1 | -1 | null }>("PUT", `/conversations/${conversationId}/messages/${messageId}/feedback`, { body: { value } });
