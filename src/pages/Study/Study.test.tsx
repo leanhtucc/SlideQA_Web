@@ -49,11 +49,12 @@ const ANSWER: ChatMessage = {
   content: "Gateway XOR chọn một luồng [1]",
   mode: "llm",
   feedback: null,
+  searchQuery: null,
   createdAt: "2026-11-02T00:00:01Z",
   sources: [SRC],
 };
 
-function backend(consented: boolean, extra: Record<string, Handler> = {}) {
+function backend(consented: boolean, extra: Record<string, Handler> = {}, answer: ChatMessage = ANSWER) {
   session.setRefresh("ref-1");
   let messages: ChatMessage[] = [];
   return mockApi({
@@ -80,9 +81,9 @@ function backend(consented: boolean, extra: Record<string, Handler> = {}) {
           mode: null,
           sources: [],
         },
-        ANSWER,
+        answer,
       ];
-      return { json: ANSWER };
+      return { json: answer };
     },
     "PUT /me/llm-consent": ({ body }) => ({
       json: { llmConsentAt: body.granted ? "2026-11-02T00:00:00Z" : null },
@@ -160,6 +161,22 @@ describe("không gian học", () => {
     await userEvent.click(screen.getByRole("button", { name: "Gửi câu hỏi" }));
     await waitFor(() => expect(api.count("POST /conversations/v1/messages")).toBe(2));
     await waitFor(() => expect(box).toHaveValue(""));
+  });
+
+  it('câu nối tiếp được AI hiểu lại: hiện "Đã hiểu câu hỏi là…" dưới câu trả lời, câu thường thì không', async () => {
+    backend(true, {}, { ...ANSWER, searchQuery: "Pool và lane dùng để làm gì trong BPMN?" });
+    renderApp("/app/study/v1");
+    await ask("Chúng dùng để làm gì?");
+    expect(await screen.findByText("Pool và lane dùng để làm gì trong BPMN?")).toBeInTheDocument();
+    expect(screen.getByText(/Đã hiểu câu hỏi là/)).toBeInTheDocument();
+  });
+
+  it('câu hỏi thường không có dòng "Đã hiểu câu hỏi là"', async () => {
+    backend(true);
+    renderApp("/app/study/v1");
+    await ask("Gateway XOR là gì?");
+    await screen.findByRole("button", { name: "Nguồn 1: B.pdf, trang 4" });
+    expect(screen.queryByText(/Đã hiểu câu hỏi là/)).not.toBeInTheDocument();
   });
 
   it("hội thoại không tồn tại: báo rõ và có đường về", async () => {

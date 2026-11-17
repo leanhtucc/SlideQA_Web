@@ -25,6 +25,8 @@ interface ChatMessage {
   /** llm: AI tổng hợp · extractive: chỉ đoạn gốc · no-match: không đủ căn cứ */
   mode: "llm" | "extractive" | "no-match" | null;
   feedback: number | null;
+  /** Câu hỏi nối tiếp đã được AI hiểu lại thành câu độc lập (null nếu không cần viết lại) */
+  searchQuery: string | null;
   createdAt: string;
   sources: MessageSource[];
 }

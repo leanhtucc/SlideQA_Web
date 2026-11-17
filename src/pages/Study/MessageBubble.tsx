@@ -32,6 +32,11 @@ export default function MessageBubble({ message: m, activeKey, onOpenSource }: P
   if (m.role === "user") return <div className="bubble-user">{m.content}</div>;
   return (
     <div className="bubble-ai">
+      {m.searchQuery && (
+        <div className="tiny muted" style={{ marginBottom: 8 }}>
+          Đã hiểu câu hỏi là: <i>{m.searchQuery}</i>
+        </div>
+      )}
       <p style={{ whiteSpace: "pre-wrap" }}>{withCitations(m.content, m, activeKey, onOpenSource)}</p>
       {m.sources.length > 0 && (
         <div className="chips">
