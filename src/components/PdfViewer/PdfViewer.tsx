@@ -1,4 +1,6 @@
 import * as pdfjs from "pdfjs-dist";
+import Spinner from "src/components/Spinner/Spinner";
+import { ErrorState } from "src/components/State/State";
 import "pdfjs-dist/web/pdf_viewer.css";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { useEffect, useRef, useState } from "react";
@@ -150,18 +152,12 @@ export default function PdfViewer({ data, loading, error, onRetry, page, onPageC
 
       <div className="pdf-scroll" ref={scroller}>
         {(loading || (data && !pdf && !shownError)) && (
-          <p className="muted center" role="status" aria-busy="true">
-            Đang tải tài liệu…
-          </p>
-        )}
-        {shownError && (
-          <div className="stack" style={{ maxWidth: 420, margin: "0 auto" }}>
-            <Alert>{shownError}</Alert>
-            <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} onClick={onRetry}>
-              Thử lại
-            </button>
+          <div className="pdf-loading" role="status" aria-busy="true">
+            <Spinner size={22} />
+            <span className="muted small">Đang tải tài liệu…</span>
           </div>
         )}
+        {shownError && <ErrorState compact message={shownError} onRetry={onRetry} />}
         <div className="pdf-page-wrap" hidden={!pdf}>
           <canvas ref={canvas} aria-label={`Trang ${current} của tài liệu`} role="img" />
           <div ref={textLayer} className="textLayer" />

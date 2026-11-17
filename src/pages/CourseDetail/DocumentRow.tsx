@@ -1,4 +1,5 @@
 import Alert from "src/components/Alert/Alert";
+import Button from "src/components/Button/Button";
 import { formatBytes, formatDayMonthFromIso } from "src/helpers/format";
 
 interface Props {
@@ -60,9 +61,9 @@ export default function DocumentRow({ doc, retrying, onRename, onDelete, onRetry
           </button>
         )}
         {doc.status === "failed" && (
-          <button className="btn btn-secondary btn-sm" onClick={() => onRetry(doc)} disabled={retrying}>
-            {retrying ? "Đang thử lại…" : "Thử lại"}
-          </button>
+          <Button variant="secondary" size="sm" loading={retrying} loadingText="Đang thử lại…" onClick={() => onRetry(doc)}>
+            Thử lại
+          </Button>
         )}
         <button className="btn btn-ghost btn-sm" onClick={() => onRename(doc)} aria-label={`Đổi tên ${doc.name}`}>
           <Icon d={ICON.edit} />

@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { updateProfile } from "src/apis/account.api";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -11,12 +13,10 @@ export default function ProfileSection() {
   const [name, setName] = useState(user?.displayName ?? "");
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    setSaved(false);
     setFormError(null);
     const t = name.trim();
     if (!t) return setError("Hãy nhập tên hiển thị.");
@@ -26,7 +26,7 @@ export default function ProfileSection() {
     try {
       await updateProfile(t);
       await refreshUser();
-      setSaved(true);
+      toast.success("Đã lưu tên hiển thị.");
     } catch (err) {
       setFormError(err instanceof ApiError ? err.message : "Không lưu được, hãy thử lại.");
     } finally {
@@ -41,12 +41,11 @@ export default function ProfileSection() {
       </h2>
       <form className="stack" style={{ gap: 14 }} onSubmit={submit} noValidate>
         {formError && <Alert>{formError}</Alert>}
-        {saved && <Alert kind="ok">Đã lưu tên hiển thị.</Alert>}
         <Field label="Email" value={user?.email ?? ""} readOnly help="Email dùng để đăng nhập, chưa đổi được." />
         <Field label="Tên hiển thị" value={name} onChange={(e) => setName(e.target.value)} error={error} />
-        <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start" }} disabled={busy}>
-          {busy ? "Đang lưu…" : "Lưu"}
-        </button>
+        <Button variant="primary" type="submit" loading={busy} loadingText="Đang lưu…" style={{ alignSelf: "flex-start" }}>
+          Lưu
+        </Button>
       </form>
     </section>
   );

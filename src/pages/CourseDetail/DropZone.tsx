@@ -34,7 +34,8 @@ export default function DropZone({ onFiles }: { onFiles: (files: File[]) => void
       </svg>
       <span className="h3">Kéo thả PDF vào đây</span>
       <span className="small muted">
-        hoặc <span style={{ color: "var(--primary-ink)", fontWeight: 600, textDecoration: "underline" }}>chọn tệp</span> · nhiều tệp cùng lúc · tối đa {formatBytes(MAX_UPLOAD_BYTES)} mỗi tệp · chỉ PDF có lớp chữ
+        hoặc <span style={{ color: "var(--primary-ink)", fontWeight: 600, textDecoration: "underline" }}>chọn tệp</span> · nhiều tệp cùng lúc · tối đa{" "}
+        {formatBytes(MAX_UPLOAD_BYTES)} mỗi tệp · chỉ PDF có lớp chữ
       </span>
       <span className="tiny muted" style={{ maxWidth: 520 }}>
         Chỉ tải tài liệu bạn có quyền sử dụng. Slide của giảng viên chỉ dùng cá nhân, không chia sẻ.

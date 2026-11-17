@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Button from "src/components/Button/Button";
 import { Link } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -77,7 +78,14 @@ export default function GoogleButton({ mode }: { mode: "signin" | "signup" }) {
       (gsi) => {
         if (!alive || !host.current) return;
         gsi.initialize({ client_id: clientId, callback: (r) => r.credential && void submitRef.current(r.credential) });
-        gsi.renderButton(host.current, { type: "standard", theme: "outline", size: "large", text: mode === "signup" ? "signup_with" : "signin_with", locale: "vi", width: Math.max(200, Math.min(380, (host.current.clientWidth || 320) - 24)) }); // iframe của Google rộng hơn width khoảng 20px
+        gsi.renderButton(host.current, {
+          type: "standard",
+          theme: "outline",
+          size: "large",
+          text: mode === "signup" ? "signup_with" : "signin_with",
+          locale: "vi",
+          width: Math.max(200, Math.min(380, (host.current.clientWidth || 320) - 24)),
+        }); // iframe của Google rộng hơn width khoảng 20px
       },
       () => alive && setError("Không tải được đăng nhập Google. Hãy kiểm tra kết nối hoặc dùng email."),
     );
@@ -115,9 +123,9 @@ export default function GoogleButton({ mode }: { mode: "signin" | "signup" }) {
             <button type="button" className="btn btn-secondary" onClick={() => setPending(null)}>
               Hủy
             </button>
-            <button type="button" className="btn btn-primary" disabled={!agree || busy} onClick={() => pending && void submit(pending, true)}>
-              {busy ? "Đang tạo…" : "Đồng ý và tạo tài khoản"}
-            </button>
+            <Button variant="primary" disabled={!agree || busy} loading={busy} loadingText="Đang tạo…" onClick={() => pending && void submit(pending, true)}>
+              Đồng ý và tạo tài khoản
+            </Button>
           </div>
         </div>
       </Modal>

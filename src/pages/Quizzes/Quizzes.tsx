@@ -1,4 +1,9 @@
 import { useState } from "react";
+import Button from "src/components/Button/Button";
+import { EmptyState, ErrorState } from "src/components/State/State";
+import { SkeletonList } from "src/components/Loading/Loading";
+import { errorMessage } from "src/helpers/errors";
+import { toast } from "src/helpers/toast";
 import { useNavigate } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -18,8 +23,8 @@ export default function Quizzes() {
   async function open(quizId: string) {
     try {
       navigate(attemptPath((await start.mutateAsync(quizId)).id));
-    } catch {
-      /* lỗi hiện ở Alert */
+    } catch (e) {
+      toast.error(errorMessage(e, "Không mở được bài quiz, hãy thử lại."));
     }
   }
 
@@ -41,17 +46,16 @@ export default function Quizzes() {
             Tạo quiz mới
           </button>
         </div>
-        {start.error && <Alert>{start.error instanceof ApiError ? start.error.message : "Không mở được bài quiz, hãy thử lại."}</Alert>}
-        {list.isPending && <div className="skeleton" aria-busy="true" aria-label="Đang tải quiz" />}
-        {list.error && (
-          <div className="stack" style={{ maxWidth: 520 }}>
-            <Alert>Không tải được danh sách quiz.</Alert>
-            <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} onClick={() => list.refetch()}>
-              Thử lại
-            </button>
-          </div>
+        {list.isPending && <SkeletonList rows={3} label="Đang tải quiz" />}
+        {list.error && <ErrorState error={list.error} message="Không tải được danh sách quiz." onRetry={() => list.refetch()} retrying={list.isRefetching} />}
+        {list.data && items.length === 0 && (
+          <EmptyState
+            art="quiz"
+            title="Chưa có quiz nào"
+            message="Bấm Tạo quiz mới để AI ra câu hỏi từ slide của bạn."
+            action={<Button onClick={() => setCreating(true)}>Tạo quiz mới</Button>}
+          />
         )}
-        {list.data && items.length === 0 && <p className="muted">Chưa có quiz nào. Bấm Tạo quiz mới để AI ra câu hỏi từ slide của bạn.</p>}
         {items.length > 0 && (
           <ul className="card doc-list">
             {items.map((q) => (

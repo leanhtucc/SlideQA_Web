@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { useNavigate } from "react-router-dom";
 import { changePassword } from "src/apis/account.api";
 import { ApiError } from "src/apis/client";
@@ -70,9 +71,9 @@ export default function PasswordSection() {
           help="Ít nhất 8 ký tự. Đổi xong, bạn sẽ đăng nhập lại trên mọi thiết bị."
         />
         <Field label="Nhập lại mật khẩu mới" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} error={errors["confirm"]} />
-        <button type="submit" className="btn btn-primary" style={{ alignSelf: "flex-start" }} disabled={busy}>
-          {busy ? "Đang đổi…" : "Đổi mật khẩu"}
-        </button>
+        <Button variant="primary" type="submit" loading={busy} loadingText="Đang đổi…" style={{ alignSelf: "flex-start" }}>
+          Đổi mật khẩu
+        </Button>
       </form>
     </section>
   );

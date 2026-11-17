@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { useNavigate } from "react-router-dom";
 import { deleteAccount } from "src/apis/account.api";
 import { ApiError } from "src/apis/client";
@@ -76,9 +77,9 @@ function Confirm({ onCancel }: { onCancel: () => void }) {
         <button type="button" className="btn btn-secondary" onClick={onCancel}>
           Giữ tài khoản
         </button>
-        <button type="submit" className="btn btn-danger" disabled={busy}>
-          {busy ? "Đang xóa…" : "Xóa vĩnh viễn"}
-        </button>
+        <Button variant="danger" type="submit" loading={busy} loadingText="Đang xóa…">
+          Xóa vĩnh viễn
+        </Button>
       </div>
     </form>
   );

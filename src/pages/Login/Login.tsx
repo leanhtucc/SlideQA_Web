@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import { useAuth } from "src/hooks/useAuth";
@@ -90,9 +91,9 @@ export default function Login() {
           }
         />
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? "Đang đăng nhập…" : "Đăng nhập"}
-        </button>
+        <Button variant="primary" block type="submit" loading={busy} loadingText="Đang đăng nhập…">
+          Đăng nhập
+        </Button>
 
         <GoogleButton mode="signin" />
 

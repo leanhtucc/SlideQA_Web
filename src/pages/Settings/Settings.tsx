@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { Link } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -24,6 +26,7 @@ export default function Settings() {
     try {
       await setLlmConsent(value);
       setAsking(false);
+      toast.success(value ? "Đã đồng ý gửi đoạn tài liệu cho nhà cung cấp AI." : "Đã rút lại đồng ý. Hỏi đáp sẽ chỉ trả về đoạn gốc.");
     } catch (e) {
       setAsking(false);
       setError(e instanceof ApiError ? e.message : "Không lưu được lựa chọn, hãy thử lại.");
@@ -53,9 +56,9 @@ export default function Settings() {
             Trạng thái hiện tại: <b>{granted ? "Đã đồng ý" : "Chưa đồng ý"}</b>
           </p>
           {granted ? (
-            <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} disabled={busy} onClick={() => change(false)}>
-              {busy ? "Đang lưu…" : "Rút lại đồng ý"}
-            </button>
+            <Button variant="secondary" loading={busy} loadingText="Đang lưu…" style={{ alignSelf: "flex-start" }} onClick={() => change(false)}>
+              Rút lại đồng ý
+            </Button>
           ) : (
             <button className="btn btn-primary" style={{ alignSelf: "flex-start" }} disabled={busy} onClick={() => setAsking(true)}>
               Đồng ý gửi dữ liệu

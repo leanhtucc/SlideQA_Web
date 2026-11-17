@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { Link } from "react-router-dom";
 import { forgotPassword } from "src/apis/account.api";
 import { ApiError } from "src/apis/client";
@@ -57,9 +58,9 @@ export default function ForgotPassword() {
               error={fieldError}
               autoFocus
             />
-            <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
-              {busy ? "Đang gửi…" : "Gửi liên kết đặt lại"}
-            </button>
+            <Button variant="primary" block type="submit" loading={busy} loadingText="Đang gửi…">
+              Gửi liên kết đặt lại
+            </Button>
           </form>
         )}
 

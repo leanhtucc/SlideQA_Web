@@ -1,7 +1,10 @@
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "src/apis/client";
-import Alert from "src/components/Alert/Alert";
+import { EmptyState, ErrorState } from "src/components/State/State";
+import { SkeletonList } from "src/components/Loading/Loading";
+import { errorMessage } from "src/helpers/errors";
+import { toast } from "src/helpers/toast";
 import { PATH, studyPath } from "src/constants/paths";
 import { useCreateConversation } from "src/hooks/useConversation";
 import { formatDayMonth } from "src/helpers/date";
@@ -18,7 +21,7 @@ import UploadRow from "./UploadRow";
 /** Chi tiết môn (WEB-S03): tải PDF kéo thả nhiều tệp, trạng thái xử lý, cảnh báo trang trống, đổi tên, xóa, thử lại. */
 export default function CourseDetail() {
   const { id = "" } = useParams();
-  const { data: course, error, isPending } = useCourse(id);
+  const { data: course, error, isPending, refetch, isRefetching } = useCourse(id);
   const notFound = error instanceof ApiError && error.status === 404;
 
   return (
@@ -32,7 +35,19 @@ export default function CourseDetail() {
         </nav>
 
         {isPending && <div className="skeleton" style={{ height: 80 }} aria-busy="true" />}
-        {error && <Alert>{notFound ? "Không tìm thấy môn học này." : "Không tải được môn học, hãy thử lại."}</Alert>}
+        {error && (
+          <ErrorState
+            error={error}
+            message={notFound ? "Không tìm thấy môn học này." : "Không tải được môn học, hãy thử lại."}
+            {...(notFound ? {} : { onRetry: () => refetch(), retrying: isRefetching })}
+          >
+            {notFound && (
+              <Link to={PATH.HOME} className="btn btn-secondary">
+                Về tổng quan
+              </Link>
+            )}
+          </ErrorState>
+        )}
 
         {course && (
           <>
@@ -68,8 +83,8 @@ function Documents({ courseId }: { courseId: string }) {
     try {
       const c = await createConv.mutateAsync({ courseId, ...(documentIds ? { documentIds } : {}) });
       navigate(studyPath(c.id));
-    } catch {
-      /* lỗi hiện ở Alert bên dưới */
+    } catch (e) {
+      toast.error(errorMessage(e, "Không mở được hội thoại, hãy thử lại."));
     }
   }
 
@@ -92,31 +107,35 @@ function Documents({ courseId }: { courseId: string }) {
           <h2 id="docs-title" className="h2">
             Tài liệu{docs.data ? ` (${list.length})` : ""}
           </h2>
-          <button className="btn btn-primary" disabled={!hasReady || createConv.isPending} onClick={() => openChat()} title={hasReady ? undefined : "Cần ít nhất một tài liệu đã sẵn sàng"}>
+          <button
+            className="btn btn-primary"
+            disabled={!hasReady || createConv.isPending}
+            onClick={() => openChat()}
+            title={hasReady ? undefined : "Cần ít nhất một tài liệu đã sẵn sàng"}
+          >
             <svg className="ic" viewBox="0 0 24 24" aria-hidden="true">
               <path d="M21 12a8 8 0 0 1-11.5 7.2L4 20l1-4.6A8 8 0 1 1 21 12z" />
             </svg>
             Hỏi trong môn này
           </button>
         </div>
-        {createConv.error && <Alert>{createConv.error instanceof ApiError ? createConv.error.message : "Không mở được hội thoại, hãy thử lại."}</Alert>}
 
-        {docs.isPending && <div className="skeleton" aria-busy="true" aria-label="Đang tải tài liệu" />}
-        {docs.error && (
-          <div className="stack" style={{ maxWidth: 520 }}>
-            <Alert>{docs.error instanceof ApiError && docs.error.status === 0 ? docs.error.message : "Không tải được danh sách tài liệu."}</Alert>
-            <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} onClick={() => docs.refetch()}>
-              Thử lại
-            </button>
-          </div>
-        )}
-        {retry.error && <Alert>{retry.error instanceof ApiError ? retry.error.message : "Không thử lại được."}</Alert>}
+        {docs.isPending && <SkeletonList rows={3} label="Đang tải tài liệu" />}
+        {docs.error && <ErrorState compact error={docs.error} message="Không tải được danh sách tài liệu." onRetry={() => docs.refetch()} retrying={docs.isRefetching} />}
 
-        {docs.data && list.length === 0 && <p className="muted">Chưa có tài liệu nào. Kéo thả PDF vào khung bên trên để bắt đầu.</p>}
+        {docs.data && list.length === 0 && <EmptyState art="doc" title="Chưa có tài liệu nào" message="Kéo thả PDF vào khung bên trên để bắt đầu." />}
         {list.length > 0 && (
           <ul className="card doc-list">
             {list.map((d) => (
-              <DocumentRow key={d.id} doc={d} retrying={retry.isPending && retry.variables === d.id} onRename={setRenaming} onDelete={setDeleting} onRetry={(x) => retry.mutate(x.id)} onOpen={(x) => openChat([x.id])} />
+              <DocumentRow
+                key={d.id}
+                doc={d}
+                retrying={retry.isPending && retry.variables === d.id}
+                onRename={setRenaming}
+                onDelete={setDeleting}
+                onRetry={(x) => retry.mutate(x.id, { onError: (e) => toast.error(errorMessage(e, "Không thử lại được.")) })}
+                onOpen={(x) => openChat([x.id])}
+              />
             ))}
           </ul>
         )}

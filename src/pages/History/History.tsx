@@ -1,4 +1,8 @@
 import { useEffect, useState, type FormEvent } from "react";
+import { EmptyState, ErrorState } from "src/components/State/State";
+import { SkeletonList } from "src/components/Loading/Loading";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { Link } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -34,18 +38,15 @@ export default function History() {
           <input id="hist-q" className="input" type="search" placeholder="Tên hoặc nội dung câu hỏi, câu trả lời" value={input} onChange={(e) => setInput(e.target.value)} />
         </div>
 
-        {list.isPending && <div className="skeleton" aria-busy="true" aria-label="Đang tải lịch sử" />}
-        {list.error && (
-          <div className="stack" style={{ maxWidth: 520 }}>
-            <Alert>Không tải được lịch sử, hãy thử lại.</Alert>
-            <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} onClick={() => list.refetch()}>
-              Thử lại
-            </button>
-          </div>
-        )}
-        {list.data && items.length === 0 && (
-          <p className="muted">{q ? `Không có hội thoại nào khớp "${q}".` : "Chưa có hội thoại nào. Mở một môn học và bấm Hỏi trong môn này để bắt đầu."}</p>
-        )}
+        {list.isPending && <SkeletonList rows={4} label="Đang tải lịch sử" />}
+        {list.error && <ErrorState error={list.error} message="Không tải được lịch sử, hãy thử lại." onRetry={() => list.refetch()} retrying={list.isRefetching} />}
+        {list.data &&
+          items.length === 0 &&
+          (q ? (
+            <EmptyState art="search" title={`Không có hội thoại nào khớp "${q}"`} message="Thử từ khóa khác, hoặc xóa ô tìm kiếm để xem tất cả." />
+          ) : (
+            <EmptyState art="chat" title="Chưa có hội thoại nào" message="Mở một môn học và bấm Hỏi trong môn này để bắt đầu." />
+          ))}
         {items.length > 0 && (
           <ul className="card doc-list">
             {items.map((c) => (
@@ -91,6 +92,7 @@ function RenameForm({ conv, onDone }: { conv: Conversation; onDone: () => void }
     if (t.length > 120) return setError("Tên hội thoại tối đa 120 ký tự.");
     try {
       await rename.mutateAsync({ id: conv.id, title: t });
+      toast.success("Đã đổi tên hội thoại.");
       onDone();
     } catch (err) {
       setError(msg(err, "Không đổi được tên, hãy thử lại."));
@@ -110,9 +112,9 @@ function RenameForm({ conv, onDone }: { conv: Conversation; onDone: () => void }
         <button type="button" className="btn btn-secondary" onClick={onDone}>
           Hủy
         </button>
-        <button type="submit" className="btn btn-primary" disabled={rename.isPending}>
-          {rename.isPending ? "Đang lưu…" : "Lưu"}
-        </button>
+        <Button variant="primary" type="submit" loading={rename.isPending} loadingText="Đang lưu…">
+          Lưu
+        </Button>
       </div>
     </form>
   );
@@ -125,6 +127,7 @@ function DeleteBody({ conv, onDone }: { conv: Conversation; onDone: () => void }
   async function confirm() {
     try {
       await del.mutateAsync(conv.id);
+      toast.success("Đã xóa hội thoại.");
       onDone();
     } catch (e) {
       setError(msg(e, "Không xóa được, hãy thử lại."));
@@ -141,9 +144,9 @@ function DeleteBody({ conv, onDone }: { conv: Conversation; onDone: () => void }
         <button type="button" className="btn btn-secondary" onClick={onDone} autoFocus>
           Giữ lại
         </button>
-        <button type="button" className="btn btn-danger" onClick={confirm} disabled={del.isPending}>
-          {del.isPending ? "Đang xóa…" : "Xóa hội thoại"}
-        </button>
+        <Button variant="danger" loading={del.isPending} loadingText="Đang xóa…" onClick={confirm}>
+          Xóa hội thoại
+        </Button>
       </div>
     </>
   );

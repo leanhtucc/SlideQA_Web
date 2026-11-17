@@ -1,4 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { ApiError } from "src/apis/client";
@@ -60,6 +62,7 @@ function Form({ onClose }: { onClose: () => void }) {
         ...(t !== undefined ? { toPage: t } : {}),
       });
       const attempt = await start.mutateAsync(quiz.id);
+      toast.success("Đã tạo quiz mới. Chúc bạn làm bài tốt!");
       navigate(attemptPath(attempt.id));
     } catch (e) {
       if (e instanceof ApiError && e.code === "validation_error") setErrors(e.fields);
@@ -140,9 +143,9 @@ function Form({ onClose }: { onClose: () => void }) {
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Hủy
           </button>
-          <button type="submit" className="btn btn-primary" disabled={busy || !doc}>
-            {busy ? "Đang tạo quiz…" : "Tạo quiz"}
-          </button>
+          <Button variant="primary" type="submit" disabled={busy || !doc} loading={busy} loadingText="Đang tạo quiz…">
+            Tạo quiz
+          </Button>
         </div>
       </form>
       <ConsentDialog open={askConsent} onClose={() => setAskConsent(false)} onChoose={choose} busy={busy} />

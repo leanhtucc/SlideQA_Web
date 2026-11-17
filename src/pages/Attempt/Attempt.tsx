@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { ErrorState } from "src/components/State/State";
+import { SkeletonList } from "src/components/Loading/Loading";
+import Button from "src/components/Button/Button";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import { createConversation } from "src/apis/conversations.api";
@@ -24,16 +27,19 @@ export default function Attempt() {
             Quiz
           </Link>
         </nav>
-        {q.isPending && <div className="skeleton" aria-busy="true" aria-label="Đang tải bài quiz" />}
+        {q.isPending && <SkeletonList rows={3} label="Đang tải bài quiz" />}
         {q.error && (
-          <div className="stack" style={{ maxWidth: 520 }}>
-            <Alert>{notFound ? "Không tìm thấy lượt làm bài này." : "Không tải được bài quiz, hãy thử lại."}</Alert>
-            {!notFound && (
-              <button className="btn btn-secondary" style={{ alignSelf: "flex-start" }} onClick={() => q.refetch()}>
-                Thử lại
-              </button>
+          <ErrorState
+            error={q.error}
+            message={notFound ? "Không tìm thấy lượt làm bài này." : "Không tải được bài quiz, hãy thử lại."}
+            {...(notFound ? {} : { onRetry: () => q.refetch(), retrying: q.isRefetching })}
+          >
+            {notFound && (
+              <Link to={PATH.QUIZZES} className="btn btn-secondary">
+                Về danh sách quiz
+              </Link>
             )}
-          </div>
+          </ErrorState>
         )}
         {q.data && (q.data.finishedAt ? <Result attempt={q.data} /> : <Taking attempt={q.data} />)}
       </div>
@@ -113,9 +119,9 @@ function Taking({ attempt }: { attempt: Attempt }) {
           Câu trước
         </button>
         {last ? (
-          <button className="btn btn-primary" disabled={finish.isPending} onClick={end}>
-            {finish.isPending ? "Đang nộp…" : done < attempt.items.length ? `Nộp bài (còn ${attempt.items.length - done} câu chưa làm)` : "Nộp bài"}
-          </button>
+          <Button variant="primary" loading={finish.isPending} loadingText="Đang nộp…" onClick={end}>
+            {done < attempt.items.length ? `Nộp bài (còn ${attempt.items.length - done} câu chưa làm)` : "Nộp bài"}
+          </Button>
         ) : (
           <button className="btn btn-primary" onClick={() => setIdx(idx + 1)}>
             Câu sau

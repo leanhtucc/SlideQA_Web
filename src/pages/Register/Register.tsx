@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { Link, useNavigate } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import { useAuth } from "src/hooks/useAuth";
@@ -9,7 +10,6 @@ import { isEmail, passwordStrength, passwordTooLong } from "src/helpers/validate
 import GoogleButton from "src/components/GoogleButton/GoogleButton";
 import { PATH } from "src/constants/paths";
 import { BENEFITS } from "./Register.constants";
-
 
 export default function Register() {
   const { register } = useAuth();
@@ -120,7 +120,13 @@ export default function Register() {
 
         <div className="stack" style={{ gap: 6 }}>
           <label className="check">
-            <input type="checkbox" checked={terms} onChange={(e) => setTerms(e.target.checked)} aria-invalid={errors["acceptTerms"] ? true : undefined} aria-describedby={errors["acceptTerms"] ? "terms-err" : undefined} />
+            <input
+              type="checkbox"
+              checked={terms}
+              onChange={(e) => setTerms(e.target.checked)}
+              aria-invalid={errors["acceptTerms"] ? true : undefined}
+              aria-describedby={errors["acceptTerms"] ? "terms-err" : undefined}
+            />
             <span>
               Tôi đã đọc và đồng ý với{" "}
               <Link to={PATH.TERMS} className="link-strong">
@@ -141,9 +147,9 @@ export default function Register() {
           <p className="tiny muted">Việc gửi đoạn tài liệu tới nhà cung cấp AI được hỏi riêng khi bạn đặt câu hỏi đầu tiên.</p>
         </div>
 
-        <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
-          {busy ? "Đang tạo tài khoản…" : "Đăng ký"}
-        </button>
+        <Button variant="primary" block type="submit" loading={busy} loadingText="Đang tạo tài khoản…">
+          Đăng ký
+        </Button>
 
         <GoogleButton mode="signup" />
 

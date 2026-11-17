@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
 import Field from "src/components/Field/Field";
@@ -47,6 +49,7 @@ function CourseForm({ course, onDone }: { course: Course | undefined; onDone: ()
     try {
       if (course) await update.mutateAsync({ id: course.id, input });
       else await create.mutateAsync(input);
+      toast.success(course ? "Đã lưu thay đổi." : `Đã tạo môn "${name.trim()}".`);
       onDone();
     } catch (err) {
       if (err instanceof ApiError && err.code === "validation_error") setErrors(err.fields);
@@ -62,14 +65,21 @@ function CourseForm({ course, onDone }: { course: Course | undefined; onDone: ()
         <Field label="Mã môn (không bắt buộc)" value={code} onChange={(e) => setCode(e.target.value)} error={errors["code"]} placeholder="IS201" />
         <Field label="Học kỳ (không bắt buộc)" value={term} onChange={(e) => setTerm(e.target.value)} error={errors["term"]} placeholder="HK1 2026–2027" />
       </div>
-      <Field label="Ngày thi (không bắt buộc)" type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} error={errors["examDate"]} help="Dùng để đếm ngược trên trang Tổng quan." />
+      <Field
+        label="Ngày thi (không bắt buộc)"
+        type="date"
+        value={examDate}
+        onChange={(e) => setExamDate(e.target.value)}
+        error={errors["examDate"]}
+        help="Dùng để đếm ngược trên trang Tổng quan."
+      />
       <div className="modal-actions">
         <button type="button" className="btn btn-secondary" onClick={onDone}>
           Hủy
         </button>
-        <button type="submit" className="btn btn-primary" disabled={busy}>
-          {busy ? "Đang lưu…" : course ? "Lưu thay đổi" : "Tạo môn học"}
-        </button>
+        <Button variant="primary" type="submit" loading={busy} loadingText="Đang lưu…">
+          {course ? "Lưu thay đổi" : "Tạo môn học"}
+        </Button>
       </div>
     </form>
   );

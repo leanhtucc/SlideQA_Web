@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
 import Modal from "src/components/Modal/Modal";
@@ -27,6 +29,7 @@ function Body({ courseId, doc, onDone }: { courseId: string; doc: CourseDocument
     setError(null);
     try {
       await del.mutateAsync(doc.id);
+      toast.success("Đã xóa tài liệu.");
       onDone();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : "Không xóa được, hãy thử lại.");
@@ -44,9 +47,9 @@ function Body({ courseId, doc, onDone }: { courseId: string; doc: CourseDocument
         <button type="button" className="btn btn-secondary" onClick={onDone} autoFocus>
           Giữ lại
         </button>
-        <button type="button" className="btn btn-danger" onClick={confirm} disabled={del.isPending}>
-          {del.isPending ? "Đang xóa…" : "Xóa tài liệu"}
-        </button>
+        <Button variant="danger" loading={del.isPending} loadingText="Đang xóa…" onClick={confirm}>
+          Xóa tài liệu
+        </Button>
       </div>
     </>
   );

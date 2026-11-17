@@ -115,3 +115,63 @@ button.cite:hover, button.cite.active { box-shadow: 0 0 0 2px var(--primary); }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .opt:disabled { cursor: default; }
+
+/* ===== Thành phần phản hồi: spinner, nút đang xử lý, toast, trạng thái trống/lỗi, offline ===== */
+.spinner { display: inline-flex; flex: none; }
+.spinner svg { animation: spin .8s linear infinite; }
+.spinner-track { stroke: currentColor; opacity: .22; }
+.spinner-arc { stroke: currentColor; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .spinner svg { animation: pulse 1.4s ease-in-out infinite; } }
+
+.btn.is-loading { cursor: progress; }
+.btn.is-loading:disabled { opacity: .85; }
+.btn-primary.is-loading:disabled, .btn-danger.is-loading:disabled { opacity: .8; }
+
+.loading-screen { display: flex; flex-direction: column; align-items: center; gap: 14px; color: var(--primary); }
+.loading-screen .muted { color: var(--muted); }
+
+/* Skeleton danh sách */
+.skeleton-list { padding: 4px 0; }
+.skeleton-row { display: flex; align-items: center; gap: 14px; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.skeleton-row:last-child { border-bottom: 0; }
+.skeleton.skeleton-dot { width: 36px; height: 36px; border-radius: 10px; flex: none; }
+.skeleton-lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
+.skeleton.skeleton-line { height: 12px; border-radius: 6px; display: block; }
+.skeleton.skeleton-line.short { width: 32%; height: 10px; }
+
+/* Toast: viên thuốc tối theo thiết kế, icon màu theo loại */
+.toaster { position: fixed; inset: auto 16px 16px auto; margin: 0; padding: 0; border: 0; background: transparent; overflow: visible; width: min(400px, calc(100vw - 32px)); display: flex; flex-direction: column; gap: 10px; color: inherit; }
+.toast { --tk: var(--ok); align-items: flex-start; box-shadow: var(--shadow-3); animation: toast-in .2s ease-out; }
+.toast-success { --tk: #6FD08C; }
+.toast-error { --tk: #FF8A80; }
+.toast-info { --tk: #8DB8F2; }
+.dark .toast-success { --tk: var(--ok); }
+.dark .toast-error { --tk: var(--err); }
+.dark .toast-info { --tk: var(--info); }
+.toast-ic { color: var(--tk); flex: none; margin-top: 1px; }
+.toast-msg { flex: 1; min-width: 0; line-height: 1.45; overflow-wrap: anywhere; }
+.toast-action { flex: none; background: none; border: 0; color: var(--tk); font: 700 14px/1 var(--font); cursor: pointer; padding: 4px 6px; border-radius: var(--r-sm); text-decoration: underline; }
+.toast-close { flex: none; background: none; border: 0; color: inherit; opacity: .7; cursor: pointer; width: 28px; height: 28px; margin: -4px -6px -4px 0; border-radius: var(--r-sm); display: inline-flex; align-items: center; justify-content: center; }
+.toast-close:hover { opacity: 1; background: rgba(127,127,127,.25); }
+.toast-action:focus-visible, .toast-close:focus-visible { outline: 2px solid var(--tk); outline-offset: 2px; }
+@keyframes toast-in { from { opacity: 0; transform: translateY(8px); } }
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+@media (max-width: 767px) { .toaster { inset: auto 16px calc(16px + env(safe-area-inset-bottom)) 16px; width: auto; } }
+
+/* Trạng thái trống / lỗi */
+.state { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 36px 24px; }
+.state.card { box-shadow: none; }
+.state-compact { padding: 24px 16px; }
+.state-empty.card { background: var(--primary-soft); border-color: var(--primary-soft); }
+.state-msg { max-width: 460px; }
+.state-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 6px; }
+.state-icon { width: 56px; height: 56px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: var(--err-soft); color: var(--err); }
+.state-icon-offline, .state-icon-busy { background: var(--warn-soft); color: var(--warn); }
+.state-icon-notfound { background: var(--info-soft); color: var(--info); }
+.state-icon-forbidden { background: var(--surface-2); color: var(--muted); }
+
+/* Dải báo mất mạng */
+.offline-banner { position: sticky; top: 0; z-index: 50; display: flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 16px; background: var(--warn-soft); color: var(--warn); font-size: 14px; font-weight: 500; border-bottom: 1px solid var(--border); text-align: center; }
+.pdf-loading { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 48px 0; color: var(--primary); }
+.toaster[popover]:not(:popover-open) { display: none; }

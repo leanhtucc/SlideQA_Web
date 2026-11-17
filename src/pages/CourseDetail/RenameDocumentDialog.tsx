@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from "react";
+import { toast } from "src/helpers/toast";
+import Button from "src/components/Button/Button";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
 import Field from "src/components/Field/Field";
@@ -34,6 +36,7 @@ function Form({ courseId, doc, onDone }: { courseId: string; doc: CourseDocument
     setError(null);
     try {
       await rename.mutateAsync({ id: doc.id, name: v });
+      toast.success("Đã đổi tên tài liệu.");
       onDone();
     } catch (err) {
       if (err instanceof ApiError && err.code === "validation_error") setError(err.fields["name"] ?? err.message);
@@ -49,9 +52,9 @@ function Form({ courseId, doc, onDone }: { courseId: string; doc: CourseDocument
         <button type="button" className="btn btn-secondary" onClick={onDone}>
           Hủy
         </button>
-        <button type="submit" className="btn btn-primary" disabled={rename.isPending}>
-          {rename.isPending ? "Đang lưu…" : "Lưu"}
-        </button>
+        <Button variant="primary" type="submit" loading={rename.isPending} loadingText="Đang lưu…">
+          Lưu
+        </Button>
       </div>
     </form>
   );

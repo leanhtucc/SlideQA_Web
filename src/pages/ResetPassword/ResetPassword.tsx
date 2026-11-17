@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import Button from "src/components/Button/Button";
 import { Link, useSearchParams } from "react-router-dom";
 import { resetPassword } from "src/apis/account.api";
 import { ApiError } from "src/apis/client";
@@ -96,9 +97,9 @@ export default function ResetPassword() {
               onChange={(e) => setConfirm(e.target.value)}
               error={errors["confirm"]}
             />
-            <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
-              {busy ? "Đang lưu…" : "Đặt mật khẩu"}
-            </button>
+            <Button variant="primary" block type="submit" loading={busy} loadingText="Đang lưu…">
+              Đặt mật khẩu
+            </Button>
           </form>
         )}
       </div>

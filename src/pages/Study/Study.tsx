@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { ErrorState } from "src/components/State/State";
 import { Link, useParams, useSearchParams } from "react-router-dom";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
@@ -29,12 +30,15 @@ export default function Study() {
   if (conv.error || !conv.data) {
     return (
       <div className="center-screen">
-        <div className="stack" style={{ maxWidth: 480 }}>
-          <Alert>{notFound ? "Không tìm thấy hội thoại này." : "Không tải được hội thoại, hãy thử lại."}</Alert>
-          <Link to={PATH.HOME} className="btn btn-secondary" style={{ alignSelf: "flex-start" }}>
+        <ErrorState
+          error={conv.error}
+          message={notFound ? "Không tìm thấy hội thoại này." : "Không tải được hội thoại, hãy thử lại."}
+          {...(notFound ? {} : { onRetry: () => conv.refetch(), retrying: conv.isRefetching })}
+        >
+          <Link to={PATH.HOME} className="btn btn-secondary">
             Về tổng quan
           </Link>
-        </div>
+        </ErrorState>
       </div>
     );
   }
