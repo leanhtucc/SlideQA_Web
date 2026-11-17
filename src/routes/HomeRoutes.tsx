@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Navigate, type RouteObject } from "react-router-dom";
+import type { RouteObject } from "react-router-dom";
 import Loading from "src/components/Loading/Loading";
 import { PATH } from "src/constants/paths";
 import AuthenticatedGuard from "src/guards/AuthenticatedGuard";
@@ -93,7 +93,6 @@ const homeRoutes: RouteObject[] = [
       },
     ],
   },
-  { path: PATH.ROOT, element: <Navigate to={PATH.HOME} replace /> },
 ];
 
 export default homeRoutes;

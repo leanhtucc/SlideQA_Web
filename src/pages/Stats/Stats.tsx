@@ -15,7 +15,7 @@ export default function Stats() {
 
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 900, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <h1 className="h1">Thống kê</h1>
         {q.isPending && <SkeletonList rows={3} label="Đang tải thống kê" />}
         {q.error && <ErrorState error={q.error} message="Không tải được thống kê." onRetry={() => q.refetch()} retrying={q.isRefetching} />}

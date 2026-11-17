@@ -4,6 +4,7 @@ import Loading from "src/components/Loading/Loading";
 import { PATH } from "src/constants/paths";
 import UnauthenticatedGuard from "src/guards/UnauthenticatedGuard";
 
+const Landing = lazy(() => import("src/pages/Landing/Landing"));
 const Login = lazy(() => import("src/pages/Login/Login"));
 const Register = lazy(() => import("src/pages/Register/Register"));
 const ForgotPassword = lazy(() => import("src/pages/ForgotPassword/ForgotPassword"));
@@ -16,6 +17,7 @@ const authRoutes: RouteObject[] = [
   {
     element: <UnauthenticatedGuard />,
     children: [
+      { path: PATH.ROOT, element: page(<Landing />) },
       { path: PATH.LOGIN, element: page(<Login />) },
       { path: PATH.REGISTER, element: page(<Register />) },
     ],

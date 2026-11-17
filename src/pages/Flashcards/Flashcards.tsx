@@ -23,7 +23,7 @@ export default function Flashcards() {
 
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 900, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <h1 className="h1">Thẻ ghi nhớ</h1>
           <button className="btn btn-secondary" onClick={() => setAdding(true)}>

@@ -31,7 +31,7 @@ export default function Quizzes() {
   const items = list.data ?? [];
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 900, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <div
           style={{
             display: "flex",

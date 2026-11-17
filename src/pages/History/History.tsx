@@ -29,7 +29,7 @@ export default function History() {
   const items = list.data ?? [];
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 900, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <h1 className="h1">Lịch sử hội thoại</h1>
         <div className="field">
           <label className="label" htmlFor="hist-q">

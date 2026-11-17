@@ -8,7 +8,7 @@ export default function AuthLayout({ aside, children }: { aside: ReactNode; chil
   return (
     <div className="auth">
       <aside className="auth-aside">
-        <Link to={PATH.LOGIN} aria-label="Slide QA">
+        <Link to={PATH.ROOT} aria-label="Slide QA">
           <Logo light size={36} />
         </Link>
         {aside}
