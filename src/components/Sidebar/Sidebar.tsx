@@ -21,6 +21,11 @@ const NAV = [
     icon: "M4 7h13v11H4zM7 4h13v11",
   },
   {
+    to: PATH.STATS,
+    label: "Thống kê",
+    icon: "M4 20V10M10 20V4M16 20v-8M22 20H2",
+  },
+  {
     to: PATH.HISTORY,
     label: "Lịch sử",
     icon: "M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7M3 4v4h4",

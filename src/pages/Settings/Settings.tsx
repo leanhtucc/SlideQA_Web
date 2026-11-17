@@ -11,6 +11,7 @@ import ConsentDialog from "src/pages/Study/ConsentDialog";
 import DeleteAccountSection from "./DeleteAccountSection";
 import PasswordSection from "./PasswordSection";
 import ProfileSection from "./ProfileSection";
+import ThemeSection from "./ThemeSection";
 
 /** Cài đặt (FR-SET-01): xem, cấp hoặc rút lại đồng ý gửi đoạn tài liệu cho nhà cung cấp AI. */
 export default function Settings() {
@@ -65,6 +66,7 @@ export default function Settings() {
             </button>
           )}
         </section>
+        <ThemeSection />
         <ProfileSection />
         {user?.hasPassword === false ? (
           <section className="card card-pad stack" aria-labelledby="pw-title">

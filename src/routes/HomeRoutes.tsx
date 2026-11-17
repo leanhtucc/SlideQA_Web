@@ -10,6 +10,7 @@ const Study = lazy(() => import("src/pages/Study/Study"));
 const History = lazy(() => import("src/pages/History/History"));
 const Quizzes = lazy(() => import("src/pages/Quizzes/Quizzes"));
 const Flashcards = lazy(() => import("src/pages/Flashcards/Flashcards"));
+const Stats = lazy(() => import("src/pages/Stats/Stats"));
 const Attempt = lazy(() => import("src/pages/Attempt/Attempt"));
 const Settings = lazy(() => import("src/pages/Settings/Settings"));
 
@@ -63,6 +64,14 @@ const homeRoutes: RouteObject[] = [
         element: (
           <Suspense fallback={<Loading />}>
             <Flashcards />
+          </Suspense>
+        ),
+      },
+      {
+        path: PATH.STATS,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Stats />
           </Suspense>
         ),
       },
