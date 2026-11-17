@@ -21,6 +21,7 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
   const { user, llmDeclined, setLlmConsent } = useAuth();
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState<string | null>(null);
+  const [streamed, setStreamed] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [consentFor, setConsentFor] = useState<string | null>(null);
   const [consentBusy, setConsentBusy] = useState(false);
@@ -28,14 +29,28 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
 
   useEffect(() => {
     bottom.current?.scrollIntoView?.({ block: "end" });
-  }, [conversation.messages.length, pending]);
+  }, [conversation.messages.length, pending, streamed]);
+
+  // Ctrl+K (hoặc ⌘K): nhảy vào ô câu hỏi
+  const box = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        box.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
 
   async function send(question: string) {
     setError(null);
     setPending(question);
+    setStreamed("");
     setDraft("");
     try {
-      await askQuestion(conversation.id, question);
+      await askQuestion(conversation.id, question, (t) => setStreamed((s) => s + t));
       await qc.invalidateQueries({ queryKey: ["conversation", conversation.id] });
     } catch (e) {
       setDraft(question); // trả lại câu đang soạn để gửi lại
@@ -94,9 +109,15 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
         {pending && (
           <>
             <div className="bubble-user">{pending}</div>
-            <div className="muted small" role="status">
-              <span className="dot" style={{ color: "var(--primary)" }} /> Đang tìm trong tài liệu…
-            </div>
+            {streamed ? (
+              <div className="bubble-ai">
+                <p style={{ whiteSpace: "pre-wrap" }}>{streamed}</p>
+              </div>
+            ) : (
+              <div className="muted small" role="status">
+                <span className="dot" style={{ color: "var(--primary)" }} /> Đang tìm trong tài liệu…
+              </div>
+            )}
           </>
         )}
         <div ref={bottom} />
@@ -116,10 +137,11 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
           </label>
           <textarea
             id="question"
+            ref={box}
             className="input"
             rows={2}
             maxLength={MAX_QUESTION}
-            placeholder="Hỏi về nội dung slide… (Enter gửi, Shift+Enter xuống dòng)"
+            placeholder="Hỏi về nội dung slide… (Enter gửi, Shift+Enter xuống dòng, Ctrl+K để nhảy vào đây)"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onKeyDown={onKeyDown}

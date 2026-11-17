@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { ApiError, request, setSessionExpiredHandler } from "src/apis/client";
+import { ApiError, request, requestStream, setSessionExpiredHandler } from "src/apis/client";
 import { session } from "src/helpers/session";
 import { err, mockApi } from "src/test/mockApi";
 
@@ -142,5 +142,41 @@ describe("request", () => {
     mockApi({ "DELETE /courses/1": () => ({ status: 204 }) });
     authed();
     await expect(request("DELETE", "/courses/1")).resolves.toBeNull();
+  });
+});
+
+describe("requestStream (SSE)", () => {
+  const sse = (...parts: string[]) =>
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(new ReadableStream({ start: (c) => (parts.forEach((x) => c.enqueue(new TextEncoder().encode(x))), c.close()) }), { headers: { "content-type": "text/event-stream" } })),
+    );
+  const ev = (e: string, d: unknown) => `event: ${e}
+data: ${JSON.stringify(d)}
+
+`;
+
+  it("nhận từng đoạn chữ rồi kết quả cuối, kể cả khi một sự kiện bị cắt đôi giữa hai gói", async () => {
+    authed();
+    const whole = ev("delta", { text: "Xin " });
+    sse(whole.slice(0, 10), whole.slice(10) + ev("delta", { text: "chào" }), ev("done", { id: "m1" }));
+    const got: string[] = [];
+    await expect(requestStream("/x", {}, (t) => got.push(t))).resolves.toEqual({ id: "m1" });
+    expect(got).toEqual(["Xin ", "chào"]);
+  });
+
+  it("server trả JSON thường (không qua AI) thì dùng luôn; lỗi JSON thành ApiError", async () => {
+    authed();
+    mockApi({ "POST /x": () => ({ json: { id: "m2" } }), "POST /y": () => err(404, "not_found", "Không thấy") });
+    await expect(requestStream("/x", {}, () => {})).resolves.toEqual({ id: "m2" });
+    await expect(requestStream("/y", {}, () => {})).rejects.toMatchObject({ status: 404, message: "Không thấy" });
+  });
+
+  it("sự kiện error hoặc luồng đứt trước khi xong thì báo lỗi", async () => {
+    authed();
+    sse(ev("delta", { text: "a" }), ev("error", { message: "AI lỗi" }));
+    await expect(requestStream("/x", {}, () => {})).rejects.toMatchObject({ message: "AI lỗi" });
+    sse(ev("delta", { text: "a" }));
+    await expect(requestStream("/x", {}, () => {})).rejects.toMatchObject({ status: 0 });
   });
 });

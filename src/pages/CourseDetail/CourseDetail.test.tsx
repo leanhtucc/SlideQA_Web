@@ -136,6 +136,19 @@ describe("tải lên", () => {
     expect(api.count("GET /documents?courseId=c1")).toBeGreaterThan(1);
   });
 
+  it("tải tệp giống hệt tài liệu đã có: báo cho người dùng và cho xóa bản mới", async () => {
+    installFakeXhr();
+    const { api } = backend([D()], { "DELETE /documents/n1": () => ({ status: 204 }) });
+    renderApp("/app/courses/c1");
+    await screen.findByText("Slide BPMN – Tuần 3.pdf");
+    await userEvent.upload(fileInput(), pdf("copy.pdf"));
+    await waitInstances(1);
+    act(() => FakeXHR.instances[0]!.respond(202, { ...D({ id: "n1", name: "copy.pdf", status: "processing", pages: 0 }), duplicateOf: { id: "d1", name: "Slide BPMN – Tuần 3.pdf" } }));
+    expect(await screen.findByText(/"copy.pdf" giống hệt "Slide BPMN – Tuần 3.pdf"/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "Xóa bản mới" }));
+    await waitFor(() => expect(api.count("DELETE /documents/n1")).toBe(1));
+  });
+
   it("từ chối ngay tệp không phải PDF hoặc quá 50 MB, không gửi gì lên máy chủ (FR-DOC-01)", async () => {
     installFakeXhr();
     backend([]);

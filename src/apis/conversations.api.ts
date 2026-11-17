@@ -1,11 +1,9 @@
-import { request } from "src/apis/client";
+import { request, requestStream } from "src/apis/client";
 
 export const createConversation = (input: { courseId?: string; documentIds?: string[] }) => request<Conversation>("POST", "/conversations", { body: input });
 export const getConversation = (id: string) => request<ConversationDetail>("GET", `/conversations/${id}`);
-export const askQuestion = (id: string, question: string) =>
-  request<ChatMessage>("POST", `/conversations/${id}/messages`, {
-    body: { question },
-  });
+export const askQuestion = (id: string, question: string, onDelta: (text: string) => void = () => {}) =>
+  requestStream<ChatMessage>(`/conversations/${id}/messages`, { question }, onDelta);
 
 /** Đồng ý (hoặc rút lại) việc gửi đoạn tài liệu liên quan cho nhà cung cấp AI (FR-SET-01). */
 export const setLlmConsent = (granted: boolean) =>

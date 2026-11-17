@@ -47,12 +47,12 @@ function sendOnce(courseId: string, file: File, token: string | null, onProgress
  * Tải PDF lên (multipart) bằng XHR để có tiến độ. Gặp 401 thì refresh token một lần rồi tải lại,
  * giống `request`. Trả về tài liệu ở trạng thái `processing` (server xử lý nền).
  */
-export async function uploadDocument(courseId: string, file: File, onProgress: (ratio: number) => void, signal: AbortSignal): Promise<CourseDocument> {
+export async function uploadDocument(courseId: string, file: File, onProgress: (ratio: number) => void, signal: AbortSignal): Promise<CourseDocument & { duplicateOf?: { id: string; name: string } | null }> {
   let r = await sendOnce(courseId, file, session.getAccess(), onProgress, signal);
   if (r.status === 401 && (await refreshSession())) r = await sendOnce(courseId, file, session.getAccess(), onProgress, signal);
   if (r.status >= 400) {
     const e = r.body?.error;
     throw new ApiError(r.status, e?.code ?? "error", e?.message ?? "Tải lên không thành công, hãy thử lại.", e?.fields ?? {}, r.retryAfter);
   }
-  return r.body as CourseDocument;
+  return r.body;
 }

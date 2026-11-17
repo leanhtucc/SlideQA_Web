@@ -1,5 +1,17 @@
 import type { ReactNode } from "react";
+import { toast } from "src/helpers/toast";
 import Feedback from "./Feedback";
+
+/** Chép nguồn dạng chữ để dán vào bài làm: "[1] Slide BPMN.pdf, trang 3". */
+async function copyCitations(m: ChatMessage) {
+  const text = m.sources.map((s) => `[${s.n}] ${s.documentName}, trang ${s.page}`).join("\n");
+  try {
+    await navigator.clipboard.writeText(text);
+    toast.success("Đã chép trích dẫn.");
+  } catch {
+    toast.error("Không chép được, hãy chọn và chép thủ công.");
+  }
+}
 
 interface Props {
   conversationId: string;
@@ -65,6 +77,9 @@ export default function MessageBubble({ conversationId, question, message: m, ac
               </button>
             );
           })}
+          <button type="button" className="chip" onClick={() => copyCitations(m)}>
+            Chép trích dẫn
+          </button>
         </div>
       )}
       <div className="tiny muted" style={{ marginTop: 10 }}>

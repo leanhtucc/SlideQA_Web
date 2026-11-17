@@ -113,6 +113,60 @@ export async function request<T>(method: string, path: string, opts: { body?: un
   return r.data as T;
 }
 
+/**
+ * POST nhận câu trả lời dạng dòng chảy (SSE): `onDelta` được gọi với từng đoạn chữ, trả về tin nhắn cuối.
+ * Server trả JSON thường (không qua AI, hoặc lỗi trước khi bắt đầu) thì xử lý như `request`.
+ */
+export async function requestStream<T>(path: string, body: unknown, onDelta: (text: string) => void): Promise<T> {
+  const go = (token: string | null) =>
+    fetch(BASE + path, {
+      method: "POST",
+      headers: { "content-type": "application/json", accept: "text/event-stream", ...(token ? { authorization: `Bearer ${token}` } : {}) },
+      body: JSON.stringify(body),
+    }).catch(() => {
+      throw new ApiError(0, "network", "Mất kết nối. Hãy kiểm tra mạng và thử lại.");
+    });
+  let res = await go(session.getAccess());
+  if (res.status === 401 && (await refreshSession())) res = await go(session.getAccess());
+  if (!(res.headers.get("content-type") ?? "").includes("text/event-stream")) {
+    const text = await res.text();
+    let data: any = null;
+    try {
+      data = text ? JSON.parse(text) : null;
+    } catch {
+      /* không phải JSON */
+    }
+    if (res.status >= 400) throw toError({ status: res.status, data, headers: res.headers });
+    return data as T;
+  }
+  const lost = () => new ApiError(0, "network", "Mất kết nối giữa chừng. Hãy thử lại.");
+  const reader = res.body?.getReader();
+  if (!reader) throw lost();
+  const dec = new TextDecoder();
+  let buf = "";
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) throw lost();
+      buf += dec.decode(value, { stream: true });
+      const blocks = buf.split("\n\n");
+      buf = blocks.pop() ?? "";
+      for (const b of blocks) {
+        const event = /^event: (.*)$/m.exec(b)?.[1];
+        const data = JSON.parse(/^data: (.*)$/m.exec(b)?.[1] ?? "null");
+        if (event === "delta") onDelta(data.text);
+        else if (event === "done") return data as T;
+        else if (event === "error") throw new ApiError(500, "stream", data?.message ?? "Có lỗi xảy ra, hãy thử lại.");
+      }
+    }
+  } catch (e) {
+    if (e instanceof ApiError) throw e;
+    throw lost();
+  } finally {
+    void reader.cancel().catch(() => {});
+  }
+}
+
 /** Địa chỉ đầy đủ của một đường dẫn API (dùng cho XHR upload, vì fetch không báo tiến độ tải lên). */
 export const apiUrl = (path: string) => BASE + path;
 

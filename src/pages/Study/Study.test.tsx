@@ -219,4 +219,29 @@ describe("không gian học", () => {
     await waitFor(() => expect(api.count("POST /flashcards")).toBe(1));
     expect(api.calls.find((c) => c.path === "/flashcards")?.body).toEqual({ front: "Gateway XOR là gì?", back: ANSWER.content, page: 4, documentId: "d2" });
   });
+
+  it("Ctrl+K nhảy vào ô câu hỏi; Shift+Enter xuống dòng, Enter gửi", async () => {
+    const api = backend(true);
+    renderApp("/app/study/v1");
+    const box = await screen.findByPlaceholderText(/Hỏi về nội dung slide/);
+    expect(box).not.toHaveFocus();
+    await userEvent.keyboard("{Control>}k{/Control}");
+    expect(box).toHaveFocus();
+    await userEvent.type(box, "dòng 1{Shift>}{Enter}{/Shift}dòng 2");
+    expect(box).toHaveValue("dòng 1\ndòng 2");
+    expect(api.count("POST /conversations/v1/messages")).toBe(0);
+    await userEvent.keyboard("{Enter}");
+    await waitFor(() => expect(api.count("POST /conversations/v1/messages")).toBe(1));
+  });
+
+  it("Chép trích dẫn: đưa tên tài liệu và trang vào bộ nhớ tạm", async () => {
+    backend(true);
+    renderApp("/app/study/v1");
+    await ask("Gateway XOR là gì?");
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    await userEvent.click(await screen.findByRole("button", { name: "Chép trích dẫn" }));
+    expect(writeText).toHaveBeenCalledWith("[1] B.pdf, trang 4");
+    expect(await screen.findByText("Đã chép trích dẫn.")).toBeInTheDocument();
+  });
 });

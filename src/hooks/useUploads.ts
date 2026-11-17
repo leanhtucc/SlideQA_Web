@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiError } from "src/apis/client";
-import { uploadDocument } from "src/apis/documents.api";
+import { deleteDocument, uploadDocument } from "src/apis/documents.api";
 import { MAX_PARALLEL_UPLOADS, MAX_UPLOAD_BYTES } from "src/constants/upload";
+import { errorMessage } from "src/helpers/errors";
 import { formatBytes } from "src/helpers/format";
+import { toast } from "src/helpers/toast";
 
 export interface UploadItem {
   id: string;
@@ -46,9 +48,22 @@ export function useUploads(courseId: string, onUploaded: () => void) {
       controllers.current.set(item.id, ctrl);
       patch(item.id, { status: "uploading", progress: 0 });
       try {
-        await uploadDocument(courseId, item.file, (p) => patch(item.id, { progress: p }), ctrl.signal);
+        const doc = await uploadDocument(courseId, item.file, (p) => patch(item.id, { progress: p }), ctrl.signal);
         remove(item.id);
         onUploadedRef.current();
+        // Cùng nội dung với tài liệu đã có: vẫn giữ bản mới, nhưng hỏi người dùng có muốn bỏ không.
+        if (doc.duplicateOf)
+          toast.info(`"${doc.name}" giống hệt "${doc.duplicateOf.name}" đã tải trước đó.`, {
+            duration: 15000,
+            action: {
+              label: "Xóa bản mới",
+              onClick: () =>
+                deleteDocument(doc.id).then(
+                  () => onUploadedRef.current(),
+                  (e) => toast.error(errorMessage(e, "Không xóa được, hãy thử lại.")),
+                ),
+            },
+          });
       } catch (e) {
         if (e instanceof DOMException && e.name === "AbortError") remove(item.id);
         else
