@@ -17,6 +17,8 @@ export interface AuthValue {
   register: (input: { email: string; password: string; displayName: string }) => Promise<void>;
   logout: () => Promise<void>;
   retryRestore: () => void;
+  /** Tải lại hồ sơ (sau khi đổi tên hiển thị) */
+  refreshUser: () => Promise<void>;
   /** Người dùng đã từ chối gửi dữ liệu cho AI trong phiên này (không hỏi lại mỗi câu) */
   llmDeclined: boolean;
   /** Đồng ý (true) hoặc từ chối/rút lại (false) việc gửi đoạn tài liệu cho nhà cung cấp AI (FR-SET-01) */
@@ -86,6 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setStatus("guest");
       },
       retryRestore: () => void restore(),
+      refreshUser: async () => setUser(await authApi.getMe()),
       llmDeclined,
       setLlmConsent: async (granted) => {
         const r = await consentApi.setLlmConsent(granted);

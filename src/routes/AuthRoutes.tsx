@@ -7,6 +7,7 @@ import UnauthenticatedGuard from "src/guards/UnauthenticatedGuard";
 const Login = lazy(() => import("src/pages/Login/Login"));
 const Register = lazy(() => import("src/pages/Register/Register"));
 const ForgotPassword = lazy(() => import("src/pages/ForgotPassword/ForgotPassword"));
+const ResetPassword = lazy(() => import("src/pages/ResetPassword/ResetPassword"));
 
 const page = (el: React.ReactNode) => <Suspense fallback={<Loading />}>{el}</Suspense>;
 
@@ -20,6 +21,7 @@ const authRoutes: RouteObject[] = [
     ],
   },
   { path: PATH.FORGOT_PASSWORD, element: page(<ForgotPassword />) },
+  { path: PATH.RESET_PASSWORD, element: page(<ResetPassword />) },
 ];
 
 export default authRoutes;

@@ -5,6 +5,7 @@ import { useAuth } from "src/hooks/useAuth";
 import Alert from "src/components/Alert/Alert";
 import AuthLayout from "src/layouts/AuthLayout";
 import Field from "src/components/Field/Field";
+import { flash } from "src/helpers/flash";
 import { isEmail } from "src/helpers/validate";
 import { PATH } from "src/constants/paths";
 
@@ -12,6 +13,7 @@ export default function Login() {
   const { login, expired } = useAuth();
   const navigate = useNavigate();
   const from = (useLocation().state as { from?: string } | null)?.from ?? PATH.HOME;
+  const [notice] = useState(() => flash.take());
   const form = useRef<HTMLFormElement>(null);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,6 +70,7 @@ export default function Login() {
           <p className="muted">Chào mừng trở lại. Tiếp tục ôn tập nào.</p>
         </div>
 
+        {notice && !formError && <Alert kind="ok">{notice}</Alert>}
         {expired && !formError && <Alert kind="warn">Phiên đăng nhập đã hết hạn, hãy đăng nhập lại.</Alert>}
         {formError && <Alert>{formError}</Alert>}
 

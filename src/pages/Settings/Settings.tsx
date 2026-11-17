@@ -6,6 +6,9 @@ import { PATH } from "src/constants/paths";
 import { useAuth } from "src/hooks/useAuth";
 import MainLayout from "src/layouts/MainLayout";
 import ConsentDialog from "src/pages/Study/ConsentDialog";
+import DeleteAccountSection from "./DeleteAccountSection";
+import PasswordSection from "./PasswordSection";
+import ProfileSection from "./ProfileSection";
 
 /** Cài đặt (FR-SET-01): xem, cấp hoặc rút lại đồng ý gửi đoạn tài liệu cho nhà cung cấp AI. */
 export default function Settings() {
@@ -59,6 +62,9 @@ export default function Settings() {
             </button>
           )}
         </section>
+        <ProfileSection />
+        <PasswordSection />
+        <DeleteAccountSection />
       </div>
       <ConsentDialog open={asking} onClose={() => setAsking(false)} onChoose={change} busy={busy} />
     </MainLayout>
