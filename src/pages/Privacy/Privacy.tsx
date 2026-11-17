@@ -85,7 +85,7 @@ export default function Privacy() {
         <li>Máy chủ ứng dụng: Northflank, khu vực [KIỂM TRA: ghi đúng khu vực khi triển khai].</li>
         <li>Đăng nhập bằng Google (nếu bạn chọn): Google nhận thông tin đăng nhập theo chính sách của Google.</li>
         <li>Phông chữ: trang tải phông Be Vietnam Pro từ Google Fonts nên Google thấy địa chỉ IP của bạn khi mở trang. [KIỂM TRA: bỏ dòng này nếu đã tự lưu phông trên máy chủ của mình].</li>
-        <li>Email đặt lại mật khẩu: [KIỂM TRA: ghi tên nhà cung cấp gửi email khi đã chọn].</li>
+        <li>Email đặt lại mật khẩu: gửi qua Brevo, nhận địa chỉ email của bạn và nội dung thư (liên kết đặt lại mật khẩu). Brevo là công ty Pháp, dữ liệu có thể được xử lý ở EU. [KIỂM TRA: đối chiếu nơi xử lý dữ liệu theo điều khoản Brevo hiện hành.]</li>
       </ul>
       <p>Các dịch vụ trên đặt hoặc có thể xử lý dữ liệu ở nước ngoài, nên việc này là chuyển dữ liệu cá nhân xuyên biên giới theo Điều 20 Luật 91/2025.</p>
 
