@@ -63,7 +63,22 @@ export default function Settings() {
           )}
         </section>
         <ProfileSection />
-        <PasswordSection />
+        {user?.hasPassword === false ? (
+          <section className="card card-pad stack" aria-labelledby="pw-title">
+            <h2 id="pw-title" className="h2">
+              Mật khẩu
+            </h2>
+            <p className="small">
+              Tài khoản này đăng nhập bằng Google nên chưa có mật khẩu. Nếu muốn đăng nhập bằng email và mật khẩu, hãy{" "}
+              <Link to={PATH.FORGOT_PASSWORD} className="link-strong">
+                đặt mật khẩu qua email
+              </Link>
+              .
+            </p>
+          </section>
+        ) : (
+          <PasswordSection />
+        )}
         <DeleteAccountSection />
       </div>
       <ConsentDialog open={asking} onClose={() => setAsking(false)} onChoose={change} busy={busy} />

@@ -27,5 +27,5 @@ export function mockApi(routes: Record<string, Handler>) {
 
 export const err = (status: number, code: string, message: string, extra: Record<string, unknown> = {}) => ({ status, json: { error: { code, message, ...extra } } });
 
-export const USER = { id: "u1", email: "tu@example.test", displayName: "Tú", role: "learner" as const, llmConsentAt: null };
+export const USER = { id: "u1", email: "tu@example.test", displayName: "Tú", role: "learner" as const, llmConsentAt: null, hasPassword: true };
 export const tokens = (n: number) => ({ user: USER, accessToken: `acc-${n}`, refreshToken: `ref-${n}`, expiresIn: 900 });

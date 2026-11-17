@@ -7,4 +7,5 @@ export const resetPassword = (token: string, password: string) => request<null>(
 export const updateProfile = (displayName: string) => request<User>("PATCH", "/me", { body: { displayName } });
 /** Thành công thì mọi phiên bị thu hồi, người dùng phải đăng nhập lại. */
 export const changePassword = (currentPassword: string, newPassword: string) => request<null>("POST", "/me/password", { body: { currentPassword, newPassword } });
-export const deleteAccount = (password: string) => request<null>("DELETE", "/me", { body: { password } });
+/** Có mật khẩu thì xác nhận bằng mật khẩu; tài khoản chỉ dùng Google xác nhận bằng cách gõ lại email. */
+export const deleteAccount = (confirm: { password: string } | { email: string }) => request<null>("DELETE", "/me", { body: confirm });

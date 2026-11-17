@@ -5,6 +5,7 @@ import { useAuth } from "src/hooks/useAuth";
 import Alert from "src/components/Alert/Alert";
 import AuthLayout from "src/layouts/AuthLayout";
 import Field from "src/components/Field/Field";
+import GoogleButton from "src/components/GoogleButton/GoogleButton";
 import { flash } from "src/helpers/flash";
 import { isEmail } from "src/helpers/validate";
 import { PATH } from "src/constants/paths";
@@ -92,6 +93,8 @@ export default function Login() {
         <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
           {busy ? "Đang đăng nhập…" : "Đăng nhập"}
         </button>
+
+        <GoogleButton mode="signin" />
 
         <p className="small muted center">
           Chưa có tài khoản?{" "}

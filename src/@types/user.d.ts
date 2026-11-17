@@ -5,4 +5,6 @@ interface User {
   displayName: string;
   role: "learner" | "admin";
   llmConsentAt: string | null;
+  /** false với tài khoản chỉ dùng Google: không có mật khẩu để đổi, xác nhận xóa bằng email */
+  hasPassword: boolean;
 }

@@ -14,6 +14,7 @@ export interface AuthValue {
   /** true khi phiên vừa hết hạn giữa chừng: trang đăng nhập hiện thông báo */
   expired: boolean;
   login: (email: string, password: string) => Promise<void>;
+  loginWithGoogle: (credential: string, acceptTerms?: boolean) => Promise<void>;
   register: (input: { email: string; password: string; displayName: string }) => Promise<void>;
   logout: () => Promise<void>;
   retryRestore: () => void;
@@ -71,6 +72,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       expired,
       login: async (email, password) => {
         setUser(await authApi.login({ email, password }));
+        setExpired(false);
+        setStatus("authed");
+      },
+      loginWithGoogle: async (credential, acceptTerms) => {
+        setUser(await authApi.loginWithGoogle(credential, acceptTerms));
         setExpired(false);
         setStatus("authed");
       },

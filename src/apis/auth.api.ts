@@ -25,6 +25,11 @@ export async function login(input: { email: string; password: string }): Promise
   );
 }
 
+/** Đăng nhập/đăng ký bằng ID token của Google. Người dùng mới phải đồng ý điều khoản (không thì server trả terms_required). */
+export async function loginWithGoogle(credential: string, acceptTerms?: boolean): Promise<User> {
+  return store(await request<AuthResult>("POST", "/auth/google", { body: { credential, ...(acceptTerms ? { acceptTerms: true } : {}) }, auth: false }));
+}
+
 /** Xóa phiên phía máy trước (luôn thành công), rồi báo server thu hồi refresh token nếu được. */
 export async function logout(): Promise<void> {
   const rt = session.getRefresh();

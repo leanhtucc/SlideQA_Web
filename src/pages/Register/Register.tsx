@@ -6,6 +6,7 @@ import Alert from "src/components/Alert/Alert";
 import AuthLayout from "src/layouts/AuthLayout";
 import Field from "src/components/Field/Field";
 import { isEmail, passwordStrength, passwordTooLong } from "src/helpers/validate";
+import GoogleButton from "src/components/GoogleButton/GoogleButton";
 import { PATH } from "src/constants/paths";
 import { BENEFITS } from "./Register.constants";
 
@@ -143,6 +144,8 @@ export default function Register() {
         <button type="submit" className="btn btn-primary btn-block" disabled={busy}>
           {busy ? "Đang tạo tài khoản…" : "Đăng ký"}
         </button>
+
+        <GoogleButton mode="signup" />
 
         <p className="small muted center">
           Đã có tài khoản?{" "}

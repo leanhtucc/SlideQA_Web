@@ -31,8 +31,9 @@ export default function DeleteAccountSection() {
 }
 
 function Confirm({ onCancel }: { onCancel: () => void }) {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const byEmail = user?.hasPassword === false; // tài khoản chỉ dùng Google: gõ lại email thay cho mật khẩu
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | undefined>();
   const [formError, setFormError] = useState<string | null>(null);
@@ -40,17 +41,17 @@ function Confirm({ onCancel }: { onCancel: () => void }) {
 
   async function submit(e: FormEvent) {
     e.preventDefault();
-    if (!password) return setError("Hãy nhập mật khẩu để xác nhận.");
+    if (!password) return setError(byEmail ? "Hãy nhập email để xác nhận." : "Hãy nhập mật khẩu để xác nhận.");
     setError(undefined);
     setFormError(null);
     setBusy(true);
     try {
-      await deleteAccount(password);
+      await deleteAccount(byEmail ? { email: password } : { password });
       flash.set("Tài khoản và toàn bộ dữ liệu của bạn đã được xóa.");
       await logout(); // phiên đã bị xóa ở server; xóa nốt dấu vết trên máy
       navigate(PATH.LOGIN, { replace: true });
     } catch (err) {
-      if (err instanceof ApiError && err.code === "wrong_password") setError(err.message);
+      if (err instanceof ApiError && (err.code === "wrong_password" || err.code === "wrong_confirmation")) setError(err.message);
       else setFormError(err instanceof ApiError ? err.message : "Không xóa được, hãy thử lại.");
       setBusy(false);
     }
@@ -63,9 +64,9 @@ function Confirm({ onCancel }: { onCancel: () => void }) {
       </Alert>
       {formError && <Alert>{formError}</Alert>}
       <Field
-        label="Nhập mật khẩu để xác nhận"
-        type="password"
-        autoComplete="current-password"
+        label={byEmail ? "Nhập lại email của bạn để xác nhận" : "Nhập mật khẩu để xác nhận"}
+        type={byEmail ? "email" : "password"}
+        autoComplete={byEmail ? "email" : "current-password"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         error={error}
