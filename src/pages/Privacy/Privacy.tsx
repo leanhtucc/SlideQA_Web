@@ -65,8 +65,12 @@ export default function Privacy() {
 
       <H2>3. Dùng AI và gửi dữ liệu ra bên ngoài</H2>
       <p>
-        Khi bạn hỏi hoặc tạo quiz, và <b>chỉ khi bạn đã đồng ý</b> ở hộp thoại hiện lần đầu, chúng tôi gửi tới nhà cung cấp AI (Anthropic) câu hỏi của bạn, vài câu hỏi trước đó trong cùng hội thoại và
-        vài đoạn slide liên quan nhất (không phải cả tài liệu). Việc này giúp soạn câu trả lời. Nhà cung cấp AI đặt ở nước ngoài.
+        Khi bạn hỏi hoặc tạo quiz, và <b>chỉ khi bạn đã đồng ý</b> ở hộp thoại hiện lần đầu, chúng tôi gửi tới nhà cung cấp AI (Google, qua Gemini API) câu hỏi của bạn, vài câu hỏi trước đó trong cùng hội thoại
+        và vài đoạn slide liên quan nhất (không phải cả tài liệu). Việc này giúp soạn câu trả lời. Nhà cung cấp AI đặt ở nước ngoài.
+      </p>
+      <p>
+        Chúng tôi đang dùng gói miễn phí của Google AI Studio. Theo điều khoản của Google, ở gói này nội dung gửi lên có thể được Google dùng để cải thiện sản phẩm và có thể được người của Google xem lại.
+        Vì vậy hãy <b>đừng tải hay hỏi về tài liệu có thông tin riêng tư</b>. [KIỂM TRA: đối chiếu lại điều khoản Gemini API hiện hành của Google, và bỏ đoạn này nếu chuyển sang gói trả phí.]
       </p>
       <p>
         Chưa đồng ý, hoặc đã rút lại, thì không có dữ liệu nào gửi cho nhà cung cấp AI: bạn chỉ nhận các đoạn gốc liên quan. Bạn rút lại bất cứ lúc nào ở <b>Cài đặt</b>. Chúng tôi không ghi nội

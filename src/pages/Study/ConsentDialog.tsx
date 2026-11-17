@@ -25,8 +25,8 @@ function Body({ onChoose, busy }: Omit<Props, "open" | "onClose"> & { onClose: (
   return (
     <>
       <p className="small">
-        Khi bạn hỏi, Slide QA gửi <b>chỉ vài đoạn liên quan nhất</b> (không phải cả tài liệu) tới nhà cung cấp AI để soạn câu trả lời. Dữ liệu này được xử lý ở nước ngoài. Đừng tải
-        tài liệu mật.
+        Khi bạn hỏi, Slide QA gửi <b>chỉ vài đoạn liên quan nhất</b> (không phải cả tài liệu) tới nhà cung cấp AI để soạn câu trả lời. Dữ liệu này được xử lý ở nước ngoài (Google, gói miễn phí: Google có thể dùng nội dung để cải thiện
+        sản phẩm). Đừng tải tài liệu mật hay có thông tin riêng tư.
       </p>
       <ul className="small muted" style={{ margin: 0, paddingLeft: 18 }}>
         <li>Bạn có thể rút lại ở Cài đặt, khi đó chỉ còn chế độ trả về đoạn gốc.</li>
