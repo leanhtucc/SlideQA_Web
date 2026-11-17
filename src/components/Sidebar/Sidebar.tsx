@@ -20,6 +20,11 @@ const NAV = [
     label: "Lịch sử",
     icon: "M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7M3 4v4h4",
   },
+  {
+    to: PATH.SETTINGS,
+    label: "Cài đặt",
+    icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-2-4-2 .6a7 7 0 0 0-1.6-1L15 4h-4l-.4 2.6a7 7 0 0 0-1.6 1L7 7 5 11l2 1a7 7 0 0 0 0 2l-2 1 2 4 2-.6a7 7 0 0 0 1.6 1L11 20h4l.4-2.6a7 7 0 0 0 1.6-1l2 .6 2-4-2-1a7 7 0 0 0 0-2z",
+  },
 ];
 
 export default function Sidebar() {

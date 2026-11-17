@@ -3,6 +3,7 @@ export const PATH = {
   HOME: "/app",
   COURSE: "/app/courses/:id",
   STUDY: "/app/study/:id",
+  SETTINGS: "/app/settings",
   HISTORY: "/app/history",
   QUIZZES: "/app/quizzes",
   ATTEMPT: "/app/attempts/:id",

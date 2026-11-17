@@ -131,6 +131,37 @@ describe("không gian học", () => {
     expect(screen.getByPlaceholderText(/Hỏi về nội dung slide/)).toHaveValue("Câu hỏi quan trọng");
   });
 
+  it("từ chối đồng ý: vẫn gửi câu hỏi (chế độ đoạn gốc) và không hỏi lại ở câu sau", async () => {
+    const api = backend(false);
+    renderApp("/app/study/v1");
+    await ask("Câu một");
+    await userEvent.click(await screen.findByRole("button", { name: "Không, chỉ xem đoạn gốc" }));
+    await waitFor(() => expect(api.count("POST /conversations/v1/messages")).toBe(1));
+    expect(api.calls.find((c) => c.path === "/me/llm-consent")?.body).toEqual({ granted: false });
+    await ask("Câu hai");
+    await waitFor(() => expect(api.count("POST /conversations/v1/messages")).toBe(2));
+    expect(api.count("PUT /me/llm-consent")).toBe(1);
+  });
+
+  it("mất mạng giữa chừng: báo mất kết nối, giữ nháp, gửi lại được khi có mạng", async () => {
+    let online = false;
+    const api = backend(true, {
+      "POST /conversations/v1/messages": ({ body }) => {
+        if (!online) throw new TypeError("Failed to fetch");
+        return { json: { ...ANSWER, content: `Đã nhận: ${body.question}` } };
+      },
+    });
+    renderApp("/app/study/v1");
+    await ask("Câu hỏi dài mà tôi không muốn gõ lại");
+    expect(await screen.findByText(/Mất kết nối/)).toBeInTheDocument();
+    const box = screen.getByPlaceholderText(/Hỏi về nội dung slide/);
+    expect(box).toHaveValue("Câu hỏi dài mà tôi không muốn gõ lại");
+    online = true;
+    await userEvent.click(screen.getByRole("button", { name: "Gửi câu hỏi" }));
+    await waitFor(() => expect(api.count("POST /conversations/v1/messages")).toBe(2));
+    await waitFor(() => expect(box).toHaveValue(""));
+  });
+
   it("hội thoại không tồn tại: báo rõ và có đường về", async () => {
     backend(true, {
       "GET /conversations/v1": () => err(404, "not_found", "x"),

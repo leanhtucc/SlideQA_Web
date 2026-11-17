@@ -10,6 +10,7 @@ const Study = lazy(() => import("src/pages/Study/Study"));
 const History = lazy(() => import("src/pages/History/History"));
 const Quizzes = lazy(() => import("src/pages/Quizzes/Quizzes"));
 const Attempt = lazy(() => import("src/pages/Attempt/Attempt"));
+const Settings = lazy(() => import("src/pages/Settings/Settings"));
 
 /** Vùng đã đăng nhập; các màn W2 trở đi (môn học, học, quiz...) thêm vào đây. */
 const homeRoutes: RouteObject[] = [
@@ -61,6 +62,14 @@ const homeRoutes: RouteObject[] = [
         element: (
           <Suspense fallback={<Loading />}>
             <Attempt />
+          </Suspense>
+        ),
+      },
+      {
+        path: PATH.SETTINGS,
+        element: (
+          <Suspense fallback={<Loading />}>
+            <Settings />
           </Suspense>
         ),
       },
