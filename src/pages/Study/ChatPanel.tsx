@@ -88,8 +88,8 @@ export default function ChatPanel({ conversation, activeKey, onOpenSource }: Pro
             xem đúng trang.
           </Alert>
         )}
-        {conversation.messages.map((m) => (
-          <MessageBubble key={m.id} conversationId={conversation.id} message={m} activeKey={activeKey} onOpenSource={onOpenSource} />
+        {conversation.messages.map((m, i) => (
+          <MessageBubble key={m.id} conversationId={conversation.id} question={conversation.messages[i - 1]?.role === "user" ? conversation.messages[i - 1]?.content : undefined} message={m} activeKey={activeKey} onOpenSource={onOpenSource} />
         ))}
         {pending && (
           <>

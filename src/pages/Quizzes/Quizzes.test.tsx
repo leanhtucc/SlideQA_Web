@@ -225,4 +225,16 @@ describe("quiz", () => {
     expect(await screen.findByText("Cả môn Quy trình")).toBeInTheDocument();
     expect(screen.queryByText(/Trang null/)).not.toBeInTheDocument();
   });
+
+  it("kết quả: Lưu câu sai thành thẻ gọi API và báo số thẻ đã tạo", async () => {
+    const api = backend(true, { "POST /flashcards/from-attempt/a1": () => ({ status: 201, json: { created: 1, skipped: 0 } }) });
+    renderApp("/app/attempts/a1");
+    await userEvent.click(await screen.findByRole("button", { name: /Một/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Câu sau" }));
+    await userEvent.click(await screen.findByRole("button", { name: /Hai/ }));
+    await userEvent.click(await screen.findByRole("button", { name: "Nộp bài" }));
+    await userEvent.click(await screen.findByRole("button", { name: "Lưu câu sai thành thẻ" }));
+    expect(await screen.findByText("Đã tạo 1 thẻ ghi nhớ.")).toBeInTheDocument();
+    expect(api.count("POST /flashcards/from-attempt/a1")).toBe(1);
+  });
 });

@@ -9,6 +9,7 @@ import Alert from "src/components/Alert/Alert";
 import { attemptPath, PATH, studyPath } from "src/constants/paths";
 import { toast } from "src/helpers/toast";
 import { useAnswer, useAttempt, useFinishAttempt, useFlagItem, useRetryWrong, useStartAttempt } from "src/hooks/useQuizzes";
+import { useFlashcardsFromAttempt } from "src/hooks/useFlashcards";
 import MainLayout from "src/layouts/MainLayout";
 
 const LETTERS = ["A", "B", "C", "D"];
@@ -139,6 +140,7 @@ function Result({ attempt }: { attempt: Attempt }) {
   const flag = useFlagItem(attempt.id, attempt.quizId);
   const retry = useRetryWrong();
   const start = useStartAttempt();
+  const cards = useFlashcardsFromAttempt();
   const wrong = attempt.items.filter((i) => i.isCorrect !== true).length;
 
   /** Báo câu hỏi sai hoặc khó hiểu: câu bị loại khỏi các lần làm sau (FR-QZ-07). */
@@ -148,6 +150,15 @@ function Result({ attempt }: { attempt: Attempt }) {
       toast.success("Đã báo câu này. Nó sẽ không xuất hiện ở các lần làm sau.");
     } catch (e) {
       toast.error(msg(e, "Không báo được câu này, hãy thử lại."));
+    }
+  }
+
+  async function makeCards() {
+    try {
+      const r = await cards.mutateAsync(attempt.id);
+      toast.success(r.created > 0 ? `Đã tạo ${r.created} thẻ ghi nhớ.` : "Các câu sai đã có thẻ rồi.");
+    } catch (e) {
+      toast.error(msg(e, "Không tạo được thẻ, hãy thử lại."));
     }
   }
 
@@ -185,9 +196,14 @@ function Result({ attempt }: { attempt: Attempt }) {
       </div>
       {error && <Alert>{error}</Alert>}
       {wrong > 0 && (
-        <Button variant="primary" loading={retry.isPending || start.isPending} loadingText="Đang tạo…" onClick={redo} style={{ alignSelf: "flex-start" }}>
-          Làm lại {wrong} câu sai
-        </Button>
+        <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <Button variant="primary" loading={retry.isPending || start.isPending} loadingText="Đang tạo…" onClick={redo}>
+            Làm lại {wrong} câu sai
+          </Button>
+          <Button variant="secondary" loading={cards.isPending} loadingText="Đang tạo…" onClick={makeCards}>
+            Lưu câu sai thành thẻ
+          </Button>
+        </div>
       )}
       <ol className="stack" style={{ gap: 12, paddingLeft: 0, listStyle: "none" }}>
         {attempt.items.map((it, n) => (

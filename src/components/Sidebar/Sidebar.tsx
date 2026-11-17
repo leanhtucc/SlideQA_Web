@@ -16,6 +16,11 @@ const NAV = [
     icon: "M9 9a3 3 0 1 1 4 2.8c-.7.4-1 1-1 1.7M12 17h.01M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z",
   },
   {
+    to: PATH.FLASHCARDS,
+    label: "Thẻ ghi nhớ",
+    icon: "M4 7h13v11H4zM7 4h13v11",
+  },
+  {
     to: PATH.HISTORY,
     label: "Lịch sử",
     icon: "M12 7v5l3 2M3 12a9 9 0 1 0 3-6.7M3 4v4h4",

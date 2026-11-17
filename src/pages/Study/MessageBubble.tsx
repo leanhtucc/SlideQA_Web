@@ -3,6 +3,8 @@ import Feedback from "./Feedback";
 
 interface Props {
   conversationId: string;
+  /** Câu hỏi của người học ngay trước câu trả lời này (làm mặt trước của thẻ) */
+  question?: string | undefined;
   message: ChatMessage;
   /** Khóa nguồn đang được mở trên PDF: `${messageId}:${n}` */
   activeKey: string | null;
@@ -30,7 +32,7 @@ function withCitations(content: string, m: ChatMessage, activeKey: string | null
   });
 }
 
-export default function MessageBubble({ conversationId, message: m, activeKey, onOpenSource }: Props) {
+export default function MessageBubble({ conversationId, question, message: m, activeKey, onOpenSource }: Props) {
   if (m.role === "user") return <div className="bubble-user">{m.content}</div>;
   return (
     <div className="bubble-ai">
@@ -70,7 +72,7 @@ export default function MessageBubble({ conversationId, message: m, activeKey, o
         {m.mode === "extractive" && "Chưa qua AI: đây là các đoạn gốc liên quan nhất. Bấm nguồn để xem đúng trang."}
         {m.mode === "no-match" && "Không gọi AI vì không tìm thấy đoạn nào đủ liên quan."}
       </div>
-      <Feedback conversationId={conversationId} message={m} />
+      <Feedback conversationId={conversationId} message={m} question={question} />
     </div>
   );
 }

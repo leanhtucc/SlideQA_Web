@@ -210,4 +210,13 @@ describe("không gian học", () => {
     expect(await screen.findByText("Không tìm thấy hội thoại này.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Về tổng quan" })).toBeInTheDocument();
   });
+
+  it("lưu câu trả lời thành thẻ: mặt trước là câu hỏi, mặt sau là câu trả lời, kèm tài liệu và trang nguồn", async () => {
+    const api = backend(true, { "POST /flashcards": () => ({ status: 201, json: {} }) });
+    renderApp("/app/study/v1");
+    await ask("Gateway XOR là gì?");
+    await userEvent.click(await screen.findByRole("button", { name: "Lưu thành thẻ" }));
+    await waitFor(() => expect(api.count("POST /flashcards")).toBe(1));
+    expect(api.calls.find((c) => c.path === "/flashcards")?.body).toEqual({ front: "Gateway XOR là gì?", back: ANSWER.content, page: 4, documentId: "d2" });
+  });
 });

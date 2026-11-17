@@ -6,6 +6,7 @@ export const PATH = {
   SETTINGS: "/app/settings",
   HISTORY: "/app/history",
   QUIZZES: "/app/quizzes",
+  FLASHCARDS: "/app/flashcards",
   ATTEMPT: "/app/attempts/:id",
   LOGIN: "/login",
   REGISTER: "/register",
