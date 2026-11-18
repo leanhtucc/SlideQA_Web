@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ErrorState } from "src/components/State/State";
 import { SkeletonList } from "src/components/Loading/Loading";
 import Button from "src/components/Button/Button";
@@ -56,6 +56,18 @@ function Taking({ attempt }: { attempt: Attempt }) {
   const [idx, setIdx] = useState(firstOpen === -1 ? 0 : firstOpen);
   const [error, setError] = useState<string | null>(null);
   const item = attempt.items[idx];
+
+  // Phím A–D chọn đáp án; bỏ qua khi đang gõ vào ô nhập hoặc có phím bổ trợ.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.ctrlKey || e.metaKey || e.altKey || t?.closest("input,textarea,select,[contenteditable]")) return;
+      const i = LETTERS.indexOf(e.key.toUpperCase());
+      if (i !== -1 && i < (item?.options.length ?? 0)) void pick(i);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
   if (!item) return <Alert>Bài quiz này không còn câu hỏi nào.</Alert>;
   const graded = item.chosenIndex !== null && item.correctIndex !== undefined;
   const last = idx === attempt.items.length - 1;
@@ -85,7 +97,9 @@ function Taking({ attempt }: { attempt: Attempt }) {
       <div className="small muted" aria-live="polite">
         Câu {idx + 1} / {attempt.items.length} · đã trả lời {done}
       </div>
-      <h1 className="h2">{item.question}</h1>
+      <h1 className="h2" style={{ minHeight: "2.6em" }}>
+        {item.question}
+      </h1>
       {error && <Alert>{error}</Alert>}
       <div className="stack" role="group" aria-label="Các đáp án" style={{ gap: 8 }}>
         {item.options.map((o, i) => {
@@ -108,14 +122,15 @@ function Taking({ attempt }: { attempt: Attempt }) {
           );
         })}
       </div>
-      {graded && (
-        <div role="status">
+      {/* Giữ chỗ cho phần giải thích để nút Câu trước/Câu sau không nhảy vị trí giữa các câu. */}
+      <div role="status" style={{ minHeight: 96 }}>
+        {graded && (
           <Alert kind={item.isCorrect ? "ok" : "warn"}>
             <b>{item.isCorrect ? "Đúng." : `Chưa đúng, đáp án là ${LETTERS[item.correctIndex ?? 0]}.`}</b> {item.explanation}{" "}
             <span className="muted">(slide trang {item.page})</span>
           </Alert>
-        </div>
-      )}
+        )}
+      </div>
       <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
         <button className="btn btn-secondary" disabled={idx === 0} onClick={() => setIdx(idx - 1)}>
           Câu trước
@@ -137,6 +152,7 @@ function Taking({ attempt }: { attempt: Attempt }) {
 function Result({ attempt }: { attempt: Attempt }) {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState(false);
   const flag = useFlagItem(attempt.id, attempt.quizId);
   const retry = useRetryWrong();
   const start = useStartAttempt();
@@ -156,6 +172,7 @@ function Result({ attempt }: { attempt: Attempt }) {
   async function makeCards() {
     try {
       const r = await cards.mutateAsync(attempt.id);
+      setSaved(true);
       toast.success(r.created > 0 ? `Đã tạo ${r.created} thẻ ghi nhớ.` : "Các câu sai đã có thẻ rồi.");
     } catch (e) {
       toast.error(msg(e, "Không tạo được thẻ, hãy thử lại."));
@@ -200,8 +217,8 @@ function Result({ attempt }: { attempt: Attempt }) {
           <Button variant="primary" loading={retry.isPending || start.isPending} loadingText="Đang tạo…" onClick={redo}>
             Làm lại {wrong} câu sai
           </Button>
-          <Button variant="secondary" loading={cards.isPending} loadingText="Đang tạo…" onClick={makeCards}>
-            Lưu câu sai thành thẻ
+          <Button variant="secondary" loading={cards.isPending} loadingText="Đang tạo…" disabled={saved} onClick={makeCards}>
+            {saved ? "Đã lưu thành thẻ" : "Lưu câu sai thành thẻ"}
           </Button>
         </div>
       )}

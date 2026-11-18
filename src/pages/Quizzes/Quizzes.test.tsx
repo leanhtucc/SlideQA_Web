@@ -116,6 +116,14 @@ describe("quiz", () => {
     expect(api.count("POST /attempts/a1/finish")).toBe(1);
   });
 
+  it("phím A–D chọn đáp án và được chấm ngay", async () => {
+    backend(true);
+    renderApp("/app/attempts/a1");
+    await screen.findByRole("heading", { name: "Câu hỏi 1?" });
+    await userEvent.keyboard("a");
+    expect(await screen.findByText(/Chưa đúng, đáp án là B/)).toBeInTheDocument();
+  });
+
   it("nộp khi còn câu chưa làm: báo rõ và tính là sai", async () => {
     backend(true);
     renderApp("/app/attempts/a1");

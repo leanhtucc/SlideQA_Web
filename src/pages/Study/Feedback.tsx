@@ -40,7 +40,7 @@ export default function Feedback({ conversationId, message, question }: { conver
       <button type="button" className="btn btn-ghost btn-sm" aria-pressed={value === -1} disabled={save.isPending} onClick={() => toggle(-1)}>
         <span aria-hidden="true">👎</span> Chưa tốt
       </button>
-      {question && message.mode !== "no-match" && (
+      {question && message.mode !== "no-match" && !(message.mode === "llm" && !/\[\d+\]/.test(message.content)) && (
         <button type="button" className="btn btn-ghost btn-sm" disabled={card.isPending} onClick={saveCard}>
           Lưu thành thẻ
         </button>

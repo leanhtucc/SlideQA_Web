@@ -132,6 +132,15 @@ describe("không gian học", () => {
     expect(screen.getByPlaceholderText(/Hỏi về nội dung slide/)).toHaveValue("Câu hỏi quan trọng");
   });
 
+  it("AI từ chối (không trích nguồn nào): không hiện chip nguồn và không có nút lưu thẻ", async () => {
+    backend(true, {}, { ...ANSWER, content: "Tài liệu không có thông tin này.", sources: [SRC] });
+    renderApp("/app/study/v1");
+    await ask("Diện tích hình tròn?");
+    expect(await screen.findByText("Tài liệu không có thông tin này.")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /B.pdf/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Lưu thành thẻ" })).not.toBeInTheDocument();
+  });
+
   it("từ chối đồng ý: vẫn gửi câu hỏi (chế độ đoạn gốc) và không hỏi lại ở câu sau", async () => {
     const api = backend(false);
     renderApp("/app/study/v1");

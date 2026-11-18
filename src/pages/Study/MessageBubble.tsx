@@ -46,6 +46,9 @@ function withCitations(content: string, m: ChatMessage, activeKey: string | null
 
 export default function MessageBubble({ conversationId, question, message: m, activeKey, onOpenSource }: Props) {
   if (m.role === "user") return <div className="bubble-user">{m.content}</div>;
+  // Câu trả lời của AI chỉ hiện các nguồn nó thực sự trích dẫn; khi AI từ chối (không trích nguồn nào) thì không hiện nguồn nào.
+  const cited = new Set([...m.content.matchAll(/\[(\d+)\]/g)].map((x) => Number(x[1])));
+  const sources = m.mode === "llm" ? m.sources.filter((s) => cited.has(s.n)) : m.sources;
   return (
     <div className="bubble-ai">
       {m.searchQuery && (
@@ -54,9 +57,9 @@ export default function MessageBubble({ conversationId, question, message: m, ac
         </div>
       )}
       <p style={{ whiteSpace: "pre-wrap" }}>{withCitations(m.content, m, activeKey, onOpenSource)}</p>
-      {m.sources.length > 0 && (
+      {sources.length > 0 && (
         <div className="chips">
-          {m.sources.map((s) => {
+          {sources.map((s) => {
             const key = `${m.id}:${s.n}`;
             return s.documentDeleted ? (
               <span key={key} className="chip" style={{ cursor: "default", opacity: 0.7 }} title="Tài liệu đã bị xóa">
@@ -77,7 +80,7 @@ export default function MessageBubble({ conversationId, question, message: m, ac
               </button>
             );
           })}
-          <button type="button" className="chip" onClick={() => copyCitations(m)}>
+          <button type="button" className="chip" onClick={() => copyCitations({ ...m, sources })}>
             Chép trích dẫn
           </button>
         </div>

@@ -13,6 +13,15 @@ import MainLayout from "src/layouts/MainLayout";
 
 const isDue = (c: Flashcard) => new Date(c.dueAt).getTime() <= Date.now();
 
+/** "hôm nay lúc 17:00" / "ngày mai" / "ngày 21/11": tránh ghi ngày hôm nay mà thẻ vẫn chưa đến hạn. */
+function dueLabel(iso: string): string {
+  const d = new Date(iso);
+  const days = Math.round((new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) / 86400000);
+  if (days === 0) return `hôm nay lúc ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+  if (days === 1) return "ngày mai";
+  return `ngày ${formatDayMonthFromIso(iso)}`;
+}
+
 /** Thẻ ghi nhớ (WEB-S07): ôn các thẻ đến hạn, tự đánh giá nhớ hoặc quên; nhớ thì lần sau thưa dần 1→3→7→14 ngày (FR-FC-02). */
 export default function Flashcards() {
   const list = useFlashcards();
@@ -150,7 +159,7 @@ function CardList({ cards }: { cards: Flashcard[] }) {
           <div style={{ flex: 1, minWidth: 200 }}>
             <div className="h4">{c.front}</div>
             <div className="small muted">
-              {isDue(c) ? "Đến hạn ôn" : `Ôn lại ngày ${formatDayMonthFromIso(c.dueAt)}`} · khoảng cách {c.intervalDays} ngày
+              {isDue(c) ? "Đến hạn ôn" : `Ôn lại ${dueLabel(c.dueAt)}`} · khoảng cách {c.intervalDays} ngày
             </div>
           </div>
           <button className="btn btn-ghost btn-sm" disabled={del.isPending} onClick={() => remove(c)} aria-label={`Xóa thẻ: ${c.front}`}>
