@@ -214,3 +214,6 @@ button.cite:hover, button.cite.active { box-shadow: 0 0 0 2px var(--primary); }
 
 /* Nút radio dạng nút (Giao diện): trạng thái đang chọn phải thấy rõ */
 [role="radio"].btn[aria-checked="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+.sidebar .nav { scrollbar-width: none; }
+.sidebar .nav::-webkit-scrollbar { display: none; }
