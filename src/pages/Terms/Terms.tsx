@@ -31,7 +31,7 @@ export default function Terms() {
       <H2>3. Tài khoản</H2>
       <ul>
         <li>Bạn cung cấp thông tin đúng và tự giữ bí mật mật khẩu; hoạt động dưới tài khoản của bạn do bạn chịu trách nhiệm.</li>
-        <li>Dịch vụ dành cho người từ đủ 16 tuổi. [KIỂM TRA: xác nhận mốc tuổi với người làm luật.]</li>
+        <li>Dịch vụ dành cho người từ đủ 16 tuổi.</li>
         <li>Bạn có thể xóa tài khoản bất cứ lúc nào ở Cài đặt; khi đó dữ liệu của bạn bị xóa.</li>
       </ul>
 

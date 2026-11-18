@@ -70,7 +70,7 @@ export default function Privacy() {
       </p>
       <p>
         Chúng tôi đang dùng gói miễn phí của Google AI Studio. Theo điều khoản của Google, ở gói này nội dung gửi lên có thể được Google dùng để cải thiện sản phẩm và có thể được người của Google xem lại.
-        Vì vậy hãy <b>đừng tải hay hỏi về tài liệu có thông tin riêng tư</b>. [KIỂM TRA: đối chiếu lại điều khoản Gemini API hiện hành của Google, và bỏ đoạn này nếu chuyển sang gói trả phí.]
+        Vì vậy hãy <b>đừng tải hay hỏi về tài liệu có thông tin riêng tư</b>.
       </p>
       <p>
         Chưa đồng ý, hoặc đã rút lại, thì không có dữ liệu nào gửi cho nhà cung cấp AI: bạn chỉ nhận các đoạn gốc liên quan. Bạn rút lại bất cứ lúc nào ở <b>Cài đặt</b>. Chúng tôi không ghi nội
@@ -81,11 +81,11 @@ export default function Privacy() {
       <H2>4. Nơi lưu trữ và các bên xử lý dữ liệu</H2>
       <ul>
         <li>Cơ sở dữ liệu (tài khoản, văn bản trích từ PDF, lịch sử học): Supabase, máy chủ đặt tại Ireland (EU).</li>
-        <li>Tệp PDF gốc: [KIỂM TRA: Supabase Storage hoặc ổ đĩa máy chủ, ghi đúng nơi đặt khi triển khai].</li>
-        <li>Máy chủ ứng dụng: Northflank, khu vực [KIỂM TRA: ghi đúng khu vực khi triển khai].</li>
+        <li>Tệp PDF gốc: Supabase Storage, máy chủ đặt tại Ireland (EU).</li>
+        <li>Máy chủ ứng dụng: Northflank, khu vực châu Âu (EU).</li>
         <li>Đăng nhập bằng Google (nếu bạn chọn): Google nhận thông tin đăng nhập theo chính sách của Google.</li>
-        <li>Phông chữ: trang tải phông Be Vietnam Pro từ Google Fonts nên Google thấy địa chỉ IP của bạn khi mở trang. [KIỂM TRA: bỏ dòng này nếu đã tự lưu phông trên máy chủ của mình].</li>
-        <li>Email đặt lại mật khẩu: gửi qua Brevo, nhận địa chỉ email của bạn và nội dung thư (liên kết đặt lại mật khẩu). Brevo là công ty Pháp, dữ liệu có thể được xử lý ở EU. [KIỂM TRA: đối chiếu nơi xử lý dữ liệu theo điều khoản Brevo hiện hành.]</li>
+        <li>Phông chữ: trang tải phông Be Vietnam Pro từ Google Fonts nên Google thấy địa chỉ IP của bạn khi mở trang.</li>
+        <li>Email đặt lại mật khẩu: gửi qua Brevo, nhận địa chỉ email của bạn và nội dung thư (liên kết đặt lại mật khẩu). Brevo là công ty Pháp, dữ liệu có thể được xử lý ở EU.</li>
       </ul>
       <p>Các dịch vụ trên đặt hoặc có thể xử lý dữ liệu ở nước ngoài, nên việc này là chuyển dữ liệu cá nhân xuyên biên giới theo Điều 20 Luật 91/2025.</p>
 
@@ -100,7 +100,7 @@ export default function Privacy() {
         <li>Dữ liệu tài khoản và học tập được lưu cho tới khi bạn xóa chúng hoặc xóa tài khoản.</li>
         <li>Xóa một tài liệu: xóa luôn văn bản trích và tệp gốc. Xóa tài khoản (ở Cài đặt): xóa toàn bộ dữ liệu của bạn và các tệp PDF.</li>
         <li>Phiên đăng nhập hết hạn sau 30 ngày; liên kết đặt lại mật khẩu hết hạn sau 30 phút.</li>
-        <li>Bản sao lưu của nhà cung cấp cơ sở dữ liệu: [KIỂM TRA: ghi thời gian lưu sao lưu của gói Supabase đang dùng].</li>
+        <li>Bản sao lưu: nhà cung cấp cơ sở dữ liệu không đảm bảo bản sao lưu tự động cho gói chúng tôi đang dùng.</li>
       </ul>
 
       <H2>7. Quyền của bạn</H2>
@@ -116,14 +116,14 @@ export default function Privacy() {
 
       <H2>8. Độ tuổi</H2>
       <p>
-        Slide QA dành cho người học từ đủ 16 tuổi. [KIỂM TRA: chủ dự án xác nhận mốc tuổi với người làm luật.] Nếu bạn là cha mẹ hoặc người giám hộ và thấy trẻ dưới độ tuổi này đã tạo tài khoản, hãy
+        Slide QA dành cho người học từ đủ 16 tuổi. Nếu bạn là cha mẹ hoặc người giám hộ và thấy trẻ dưới độ tuổi này đã tạo tài khoản, hãy
         liên hệ để chúng tôi xóa.
       </p>
 
       <H2>9. Bảo mật và sự cố</H2>
       <p>
         Mật khẩu được băm, phiên đăng nhập dùng mã ngắn hạn và mã làm mới xoay vòng, mỗi người chỉ truy cập được dữ liệu của chính mình. Không hệ thống nào an toàn tuyệt đối. Nếu xảy ra lộ, mất dữ liệu
-        cá nhân, chúng tôi thông báo cho cơ quan chuyên trách theo quy định. [KIỂM TRA: chỉ giữ câu sau nếu chủ dự án làm được: "Chúng tôi cũng báo cho bạn nếu dữ liệu của bạn bị ảnh hưởng."]
+        cá nhân, chúng tôi thông báo cho cơ quan chuyên trách theo quy định. Chúng tôi cũng báo cho bạn nếu dữ liệu của bạn bị ảnh hưởng.
       </p>
 
       <H2>10. Thay đổi chính sách</H2>
