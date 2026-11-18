@@ -23,9 +23,9 @@ export default function Home() {
 
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 1200, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <div className="stack" style={{ gap: 4 }}>
-          <h1 className="h1">Chào {user?.displayName}, hôm nay ôn gì?</h1>
+          <h1 className="h1">Chào {user?.displayName?.trim() || "bạn"}, hôm nay ôn gì?</h1>
           {nextExam?.examDate && (
             <p className="muted">
               Thi môn {nextExam.name}{" "}
@@ -43,16 +43,41 @@ export default function Home() {
 
         {courses && courses.length > 0 && (
           <div className="stat-grid">
-            <div className="card card-pad">
-              <div className="small muted">Môn học</div>
+            <div className="card card-pad stat-card">
+              <div className="stat-card-head">
+                <span className="small muted">Môn học</span>
+                <span className="stat-icon stat-icon-course" aria-hidden="true">
+                  <svg className="ic ic-sm" viewBox="0 0 24 24">
+                    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z" />
+                    <path d="M6 6h10M6 10h10" />
+                  </svg>
+                </span>
+              </div>
               <div className="stat">{courses.length}</div>
             </div>
-            <div className="card card-pad">
-              <div className="small muted">Tài liệu</div>
+            <div className="card card-pad stat-card">
+              <div className="stat-card-head">
+                <span className="small muted">Tài liệu</span>
+                <span className="stat-icon stat-icon-doc" aria-hidden="true">
+                  <svg className="ic ic-sm" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <path d="M14 2v6h6" />
+                    <path d="M16 13H8M16 17H8M10 9H8" />
+                  </svg>
+                </span>
+              </div>
               <div className="stat">{docs}</div>
             </div>
-            <div className="card card-pad">
-              <div className="small muted">Quiz</div>
+            <div className="card card-pad stat-card">
+              <div className="stat-card-head">
+                <span className="small muted">Quiz</span>
+                <span className="stat-icon stat-icon-quiz" aria-hidden="true">
+                  <svg className="ic ic-sm" viewBox="0 0 24 24">
+                    <path d="M9 11l3 3L22 4" />
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                  </svg>
+                </span>
+              </div>
               <div className="stat">{quizzes}</div>
             </div>
           </div>

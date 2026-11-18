@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Logo from "src/components/Logo/Logo";
 import { PATH } from "src/constants/paths";
+import { LEGAL } from "src/pages/Legal/Legal";
 
 const STEPS = [
   { t: "Tải slide lên", d: "Kéo thả PDF vào từng môn học. Trang nào không có chữ (ảnh scan) sẽ được báo rõ, không âm thầm bỏ qua." },
@@ -141,16 +142,21 @@ export default function Landing() {
         </div>
       </section>
 
-      <footer className="lp-pad lp-foot small">
-        <span className="muted">© 2026 Slide QA · Công cụ hỗ trợ học tập, không thay thế giảng viên.</span>
-        <span style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-          <Link to={PATH.PRIVACY} className="link-strong">
-            Chính sách bảo vệ dữ liệu cá nhân
-          </Link>
-          <Link to={PATH.TERMS} className="link-strong">
-            Điều khoản sử dụng
-          </Link>
-        </span>
+      <footer className="lp-pad lp-foot small" style={{ flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16, width: "100%" }}>
+          <span className="muted">© 2026 Slide QA · Vận hành bởi {LEGAL.org} · Liên hệ: {LEGAL.email}</span>
+          <span style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+            <Link to={PATH.PRIVACY} className="link-strong">
+              Chính sách bảo vệ dữ liệu cá nhân
+            </Link>
+            <Link to={PATH.TERMS} className="link-strong">
+              Điều khoản sử dụng
+            </Link>
+          </span>
+        </div>
+        <p className="tiny muted" style={{ margin: 0 }}>
+          Slide QA là công cụ hỗ trợ học tập cá nhân, không thay thế giáo trình hay bài giảng của giảng viên.
+        </p>
       </footer>
     </div>
   );

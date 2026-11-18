@@ -60,18 +60,25 @@ a { color: inherit; }
 /* Tổng quan */
 .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
 .stat { font-size: 30px; font-weight: 700; line-height: 1.2; }
+.stat-card { display: flex; flex-direction: column; justify-content: space-between; gap: 12px; }
+.stat-card-head { display: flex; align-items: center; justify-content: space-between; }
+.stat-icon { width: 34px; height: 34px; border-radius: var(--r-md); display: inline-flex; align-items: center; justify-content: center; }
+.stat-icon-course { background: var(--primary-soft); color: var(--primary-ink); }
+.stat-icon-doc { background: var(--info-soft); color: var(--info); }
+.stat-icon-quiz { background: var(--ok-soft); color: var(--ok); }
 .course-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-.course-card { display: flex; flex-direction: column; gap: 10px; position: relative; }
+.course-card { display: flex; flex-direction: column; gap: 10px; position: relative; transition: transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s cubic-bezier(.16,1,.3,1), border-color .2s ease; }
+.course-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-2); border-color: var(--border-strong); }
 .course-link { color: var(--ink); text-decoration: none; }
 .course-link::after { content: ""; position: absolute; inset: 0; border-radius: var(--r-lg); } /* cả thẻ bấm được, nút sửa/xóa nổi lên trên */
 .course-link:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 4px; }
 .card-actions { display: flex; gap: 4px; margin-top: auto; position: relative; z-index: 1; }
-.new-course { min-height: 120px; padding: 16px; cursor: pointer; font-family: var(--font); color: var(--primary-ink); }
-.new-course:hover { background: var(--primary-soft); }
+.new-course { min-height: 120px; padding: 16px; cursor: pointer; font-family: var(--font); color: var(--primary-ink); transition: all .2s cubic-bezier(.16,1,.3,1); }
+.new-course:hover { background: var(--primary-soft); border-color: var(--primary); transform: translateY(-2px); box-shadow: var(--shadow-1); }
 .empty { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; background: var(--primary-soft); border-color: var(--primary-soft); }
 .skeleton { height: 112px; border-radius: var(--r-lg); background: var(--surface-2); animation: pulse 1.4s ease-in-out infinite; }
 @keyframes pulse { 50% { opacity: 0.55; } }
-@media (prefers-reduced-motion: reduce) { .skeleton { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .skeleton, .course-card, .new-course, .btn { animation: none; transition: none !important; transform: none !important; } }
 
 /* Hộp thoại (thẻ <dialog> gốc) */
 .modal-dialog { border: 0; padding: 0; background: transparent; width: calc(100% - 32px); max-width: 520px; color: var(--ink); }
@@ -89,7 +96,8 @@ a { color: inherit; }
 .dropzone.drag { border-color: var(--primary); background: var(--primary-soft); }
 .dropzone:focus-within { outline: 3px solid var(--primary); outline-offset: 2px; }
 .doc-list { list-style: none; margin: 0; padding: 0; }
-.doc-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.doc-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid var(--border); transition: background-color .15s ease; }
+.doc-row:hover { background: var(--surface-2); }
 .doc-row:last-child { border-bottom: 0; }
 .doc-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -203,3 +211,6 @@ button.cite:hover, button.cite.active { box-shadow: 0 0 0 2px var(--primary); }
 .lp-privacy { padding: 32px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center; background: var(--primary-soft); border-color: var(--primary-soft); }
 .lp-foot { margin-top: auto; border-top: 1px solid var(--border); background: var(--surface); padding-block: 28px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 @media (max-width: 640px) { .lp-hide-sm { display: none; } .lp-hero { padding-block: 32px 48px; } }
+
+/* Nút radio dạng nút (Giao diện): trạng thái đang chọn phải thấy rõ */
+[role="radio"].btn[aria-checked="true"] { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); font-weight: 600; }

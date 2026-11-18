@@ -69,6 +69,7 @@ export default function Sidebar() {
         <div style={{ minWidth: 0, flex: 1 }}>
           <div
             className="h4"
+            title={user?.displayName}
             style={{
               fontSize: 14,
               overflow: "hidden",
@@ -81,13 +82,17 @@ export default function Sidebar() {
           <div className="tiny muted">Người học</div>
         </div>
         <button
-          className="btn btn-ghost btn-sm"
+          className="btn btn-ghost btn-sm btn-icon"
+          aria-label="Đăng xuất"
+          title="Đăng xuất"
           onClick={async () => {
             await logout();
             navigate(PATH.LOGIN, { replace: true });
           }}
         >
-          Đăng xuất
+          <svg className="ic ic-sm" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+          </svg>
         </button>
       </div>
     </aside>
