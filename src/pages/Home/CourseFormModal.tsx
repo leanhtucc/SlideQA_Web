@@ -36,6 +36,7 @@ function CourseForm({ course, onDone }: { course: Course | undefined; onDone: ()
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    const form = e.currentTarget;
     const errs: Record<string, string> = {};
     if (!name.trim()) errs["name"] = "Hãy nhập tên môn học.";
     else if (name.trim().length > 120) errs["name"] = "Tên môn học tối đa 120 ký tự.";
@@ -43,7 +44,10 @@ function CourseForm({ course, onDone }: { course: Course | undefined; onDone: ()
     if (term.trim().length > 40) errs["term"] = "Học kỳ tối đa 40 ký tự.";
     setErrors(errs);
     setFormError(null);
-    if (Object.keys(errs).length) return;
+    if (Object.keys(errs).length) {
+      requestAnimationFrame(() => form.querySelector<HTMLElement>("[aria-invalid=true]")?.focus());
+      return;
+    }
 
     const input: CourseInput = { name, code, term, examDate: examDate || null };
     try {

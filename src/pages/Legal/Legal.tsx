@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import Logo from "src/components/Logo/Logo";
 import { PATH } from "src/constants/paths";
+import { useAuth } from "src/hooks/useAuth";
 
 /**
  * Thông tin pháp nhân do chủ dự án điền trước khi ra mắt (không tự nghĩ ra).
@@ -17,10 +18,12 @@ export const LEGAL = {
 
 /** Khung chung cho trang văn bản pháp lý, đọc được khi chưa đăng nhập. */
 export default function Legal({ title, children }: { title: string; children: ReactNode }) {
+  const { user } = useAuth();
+  const home = user ? PATH.HOME : PATH.LOGIN;
   return (
     <main className="center-screen" style={{ alignItems: "flex-start" }}>
       <article className="stack" style={{ maxWidth: 760, gap: 14, width: "100%" }}>
-        <Link to={PATH.LOGIN}>
+        <Link to={home}>
           <Logo />
         </Link>
         <h1 className="h1">{title}</h1>
@@ -28,8 +31,8 @@ export default function Legal({ title, children }: { title: string; children: Re
           Phiên bản {LEGAL.version} · cập nhật {LEGAL.updated}
         </p>
         {children}
-        <Link to={PATH.LOGIN} className="btn btn-secondary" style={{ alignSelf: "flex-start" }}>
-          Về trang đăng nhập
+        <Link to={home} className="btn btn-secondary" style={{ alignSelf: "flex-start" }}>
+          {user ? "Về Tổng quan" : "Về trang đăng nhập"}
         </Link>
       </article>
     </main>

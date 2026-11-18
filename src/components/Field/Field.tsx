@@ -22,7 +22,7 @@ export default function Field({ label, error, help, right, ...input }: FieldProp
       </div>
       <input id={id} className={"input" + (error ? " err" : "")} aria-invalid={error ? true : undefined} aria-describedby={noteId} {...input} />
       {error ? (
-        <span id={noteId} className="help err">
+        <span id={noteId} className="help err" role="alert">
           {error}
         </span>
       ) : help ? (
