@@ -85,7 +85,7 @@ describe("thẻ ghi nhớ", () => {
       "GET /me": () => ({ json: { ...USER, llmConsentAt: "2026-11-01T00:00:00Z" } }),
       "GET /documents": () => ({ json: [doc] }),
       "GET /courses": () => ({ json: [] }),
-      "POST /flashcards/from-document": () => ({ status: 201, json: { created: 8, skipped: 2 } }),
+      "POST /flashcards/from-document": () => ({ status: 201, json: { created: 8, skipped: 2, requested: 100 } }),
     });
     renderApp("/app/flashcards");
     await userEvent.click(await screen.findByRole("button", { name: "Tạo từ tài liệu" }));
@@ -97,10 +97,17 @@ describe("thẻ ghi nhớ", () => {
 
     await userEvent.clear(screen.getByLabelText("Đến trang"));
     await userEvent.type(screen.getByLabelText("Đến trang"), "6");
-    await userEvent.click(screen.getByRole("radio", { name: "15 thẻ" }));
+    await userEvent.click(screen.getByRole("radio", { name: "100 thẻ" }));
     await userEvent.click(screen.getByRole("button", { name: "Tạo thẻ" }));
     await waitFor(() => expect(api.count("POST /flashcards/from-document")).toBe(1));
-    expect(api.calls.find((c) => c.path === "/flashcards/from-document")?.body).toEqual({ documentId: "d1", count: 15, fromPage: 2, toPage: 6 });
+    expect(api.calls.find((c) => c.path === "/flashcards/from-document")?.body).toEqual({ documentId: "d1", count: 100, fromPage: 2, toPage: 6 });
+  });
+
+  it("nhiều thẻ đến hạn: mỗi lượt ôn chỉ lấy 20 thẻ đầu", async () => {
+    backend(Array.from({ length: 45 }, (_, i) => card(i + 1)));
+    renderApp("/app/flashcards");
+    await userEvent.click(await screen.findByRole("button", { name: "Bắt đầu ôn (20 thẻ)" }));
+    expect(screen.getByText("Thẻ 1 / 20")).toBeInTheDocument();
   });
 
   it("lỗi khi lưu kết quả: báo lỗi và ở lại thẻ hiện tại", async () => {

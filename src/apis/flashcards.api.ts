@@ -8,4 +8,4 @@ export const deleteFlashcard = (id: string) => request<null>("DELETE", `/flashca
 export const flashcardsFromAttempt = (attemptId: string) => request<{ created: number; skipped: number }>("POST", `/flashcards/from-attempt/${attemptId}`);
 /** AI tạo nhiều thẻ từ một tài liệu đã xử lý xong; thẻ trùng câu hỏi với thẻ đã có thì bỏ qua. */
 export const flashcardsFromDocument = (input: FlashcardsFromDocumentInput) =>
-  request<{ created: number; skipped: number }>("POST", "/flashcards/from-document", { body: input });
+  request<{ created: number; skipped: number; requested: number }>("POST", "/flashcards/from-document", { body: input });

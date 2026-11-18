@@ -14,7 +14,7 @@ import { useCourses } from "src/hooks/useCourses";
 import { useFlashcardsFromDocument } from "src/hooks/useFlashcards";
 import ConsentDialog from "src/pages/Study/ConsentDialog";
 
-const COUNTS = [5, 10, 15, 20] as const;
+const COUNTS = [10, 20, 50, 100] as const;
 const toInt = (s: string) => (s.trim() === "" ? undefined : Number(s));
 
 /** Tạo nhiều thẻ ghi nhớ từ một tài liệu đã tải lên: AI đọc các trang đã chọn và soạn câu hỏi, đáp án kèm số trang. */
@@ -35,7 +35,7 @@ function Form({ onClose }: { onClose: () => void }) {
   const [docId, setDocId] = useState("");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
-  const [count, setCount] = useState<number>(10);
+  const [count, setCount] = useState<number>(50);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [askConsent, setAskConsent] = useState(false);
@@ -51,7 +51,11 @@ function Form({ onClose }: { onClose: () => void }) {
       const f = toInt(from);
       const t = toInt(to);
       const r = await create.mutateAsync({ documentId: doc.id, count, ...(f !== undefined ? { fromPage: f } : {}), ...(t !== undefined ? { toPage: t } : {}) });
-      toast.success(r.created > 0 ? `Đã tạo ${r.created} thẻ${r.skipped > 0 ? `, bỏ qua ${r.skipped} thẻ trùng` : ""}.` : "Các thẻ này đã có rồi, không tạo thêm.");
+      toast.success(
+        r.created > 0
+          ? `Đã tạo ${r.created} thẻ${r.skipped > 0 ? `, bỏ qua ${r.skipped} thẻ trùng` : ""}${r.created + r.skipped < r.requested ? ` (tài liệu chỉ đủ ý cho ${r.created + r.skipped} thẻ)` : ""}.`
+          : "Các thẻ này đã có rồi, không tạo thêm.",
+      );
       onClose();
     } catch (e) {
       if (e instanceof ApiError && e.code === "validation_error") setErrors(e.fields);
@@ -133,7 +137,7 @@ function Form({ onClose }: { onClose: () => void }) {
                 ))}
               </div>
             </div>
-            <p className="small muted">Để trống trang để dùng cả tài liệu. AI chỉ đọc các trang đã chọn và ghi rõ trang nguồn trên mỗi thẻ; thẻ trùng câu hỏi với thẻ đã có sẽ được bỏ qua.</p>
+            <p className="small muted">Để trống trang để dùng cả tài liệu. Nhiều thẻ sẽ được soạn từ nhiều phần của tài liệu để trải đều nội dung. Mỗi thẻ ghi rõ trang nguồn; thẻ trùng câu hỏi với thẻ đã có sẽ được bỏ qua.</p>
           </>
         )}
         <div className="modal-actions">
@@ -146,7 +150,7 @@ function Form({ onClose }: { onClose: () => void }) {
         </div>
         {busy && (
           <p className="small muted" role="status">
-            AI đang đọc tài liệu, thường mất 10–30 giây. Đừng đóng cửa sổ này.
+            {count >= 50 ? "AI đang đọc tài liệu và soạn nhiều thẻ, có thể mất tới 1–2 phút." : "AI đang đọc tài liệu, thường mất 10–30 giây."} Đừng đóng cửa sổ này.
           </p>
         )}
       </form>

@@ -13,6 +13,9 @@ import { useCreateFlashcard, useDeleteFlashcard, useFlashcards, useReviewFlashca
 import MainLayout from "src/layouts/MainLayout";
 import FromDocumentModal from "./FromDocumentModal";
 
+/** Mỗi lượt ôn tối đa bấy nhiêu thẻ để không bị ngợp khi có hàng trăm thẻ đến hạn; ôn xong bấm tiếp lượt sau. */
+const SESSION_SIZE = 20;
+
 const isDue = (c: Flashcard) => new Date(c.dueAt).getTime() <= Date.now();
 
 /** "hôm nay lúc 17:00" / "ngày mai" / "ngày 21/11": tránh ghi ngày hôm nay mà thẻ vẫn chưa đến hạn. */
@@ -65,8 +68,8 @@ export default function Flashcards() {
                 <div className="small muted">Cần ôn hôm nay</div>
                 <div className="stat">{due.length}</div>
               </div>
-              <Button disabled={due.length === 0} onClick={() => setReviewing(due)}>
-                {due.length === 0 ? "Hôm nay không còn thẻ cần ôn" : "Bắt đầu ôn"}
+              <Button disabled={due.length === 0} onClick={() => setReviewing(due.slice(0, SESSION_SIZE))}>
+                {due.length === 0 ? "Hôm nay không còn thẻ cần ôn" : due.length > SESSION_SIZE ? `Bắt đầu ôn (${SESSION_SIZE} thẻ)` : "Bắt đầu ôn"}
               </Button>
             </div>
             {cards.length === 0 ? (
