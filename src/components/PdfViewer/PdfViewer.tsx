@@ -48,6 +48,7 @@ export default function PdfViewer({ data, loading, error, onRetry, page, onPageC
   useEffect(() => {
     setPdf(null);
     setLoadError(null);
+    setRenderError(null); // lỗi của tài liệu trước không được dính sang tài liệu mới
     if (!data) return;
     let cancelled = false;
     const task = pdfjs.getDocument({ data: new Uint8Array(data.slice(0)) });
@@ -115,7 +116,8 @@ export default function PdfViewer({ data, loading, error, onRetry, page, onPageC
         first?.scrollIntoView?.({ block: "center", behavior: "smooth" });
       }
     })().catch((e) => {
-      if (!cancelled && e?.name !== "RenderingCancelledException") setRenderError("Không hiển thị được trang này.");
+      // Đổi tài liệu giữa chừng làm tài liệu cũ bị hủy: đó không phải lỗi hiển thị.
+      if (!cancelled && !pdf.loadingTask.destroyed && e?.name !== "RenderingCancelledException") setRenderError("Không hiển thị được trang này.");
     });
     return () => {
       cancelled = true;
@@ -123,7 +125,18 @@ export default function PdfViewer({ data, loading, error, onRetry, page, onPageC
     };
   }, [pdf, current, zoomIdx, width, highlight, nonce]);
 
-  const shownError = error ?? loadError ?? renderError;
+  const draftInit = String(current);
+  const [draft, setDraft] = useState(draftInit);
+  useEffect(() => setDraft(draftInit), [draftInit]);
+  const shownError = loading ? null : (error ?? loadError ?? renderError); // đang tải thì không báo lỗi cũ
+  /** Nhập số trang rồi Enter hoặc rời ô: nhảy thẳng tới trang đó (kẹp trong 1..số trang); nhập sai thì trả về trang hiện tại. */
+  function goToDraft() {
+    const n = Number(draft);
+    if (!draft || !Number.isFinite(n) || numPages === 0) return setDraft(String(current));
+    const target = Math.min(Math.max(1, n), numPages);
+    setDraft(String(target));
+    if (target !== current) onPageChange(target);
+  }
   const canPrev = current > 1;
   const canNext = numPages > 0 && current < numPages;
 
@@ -133,10 +146,21 @@ export default function PdfViewer({ data, loading, error, onRetry, page, onPageC
         <button className="btn btn-secondary btn-sm btn-icon" aria-label="Trang trước" disabled={!canPrev} onClick={() => onPageChange(current - 1)}>
           <Icon d="M15 6l-6 6 6 6" />
         </button>
-        <span className="small" aria-live="polite">
-          Trang <b>{current}</b>
-          {numPages > 0 && <> / {numPages}</>}
-        </span>
+        <label className="small pdf-page-jump">
+          Trang
+          <input
+            className="input pdf-page-input"
+            inputMode="numeric"
+            aria-label="Đi tới trang"
+            value={draft}
+            disabled={numPages === 0}
+            onChange={(e) => setDraft(e.target.value.replace(/D/g, ""))}
+            onFocus={(e) => e.target.select()}
+            onBlur={goToDraft}
+            onKeyDown={(e) => e.key === "Enter" && e.currentTarget.blur()}
+          />
+          {numPages > 0 && <>/ {numPages}</>}
+        </label>
         <button className="btn btn-secondary btn-sm btn-icon" aria-label="Trang sau" disabled={!canNext} onClick={() => onPageChange(current + 1)}>
           <Icon d="M9 6l6 6-6 6" />
         </button>

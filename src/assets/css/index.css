@@ -237,3 +237,5 @@ button.cite:hover, button.cite.active { box-shadow: 0 0 0 2px var(--primary); }
 .review-progress > span { display: block; height: 100%; background: var(--primary); transition: width .3s ease; }
 @media (prefers-reduced-motion: reduce) { .review-progress > span { transition: none; } }
 .kbd { display: inline-block; min-width: 20px; padding: 0 5px; border: 1px solid var(--border-strong); border-bottom-width: 2px; border-radius: 4px; font-size: 11px; line-height: 18px; text-align: center; color: var(--muted); background: var(--surface); }
+.pdf-page-jump { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.pdf-page-input { width: 56px; min-height: 36px; padding: 4px 6px; text-align: center; font-weight: 700; }
