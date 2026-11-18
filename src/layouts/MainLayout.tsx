@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import Sidebar from "src/components/Sidebar/Sidebar";
 
 const TITLES: [string, string][] = [
-  ["/app/quizzes/attempt", "Làm quiz"],
+  ["/app/attempts", "Làm quiz"],
   ["/app/quizzes", "Quiz"],
   ["/app/flashcards", "Thẻ ghi nhớ"],
   ["/app/stats", "Thống kê"],

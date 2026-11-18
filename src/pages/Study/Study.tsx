@@ -64,6 +64,10 @@ function Workspace({ conversation }: { conversation: ConversationDetail }) {
   });
   const pdf = usePdfFile(docId);
 
+  useEffect(() => {
+    document.title = `${conversation.title} · Slide QA`;
+  }, [conversation.title]);
+
   // Mở sẵn tài liệu đầu tiên trong phạm vi.
   useEffect(() => {
     if (!docId && scopeDocs[0]) setDocId(scopeDocs[0].id);
