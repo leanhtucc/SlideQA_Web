@@ -109,7 +109,7 @@ function Workspace({ conversation }: { conversation: ConversationDetail }) {
         </div>
       )}
 
-      <div className="study-body">
+      <main className="study-body">
         <section className="study-pdf" aria-label="Tài liệu" hidden={narrow && tab !== "pdf"}>
           {scopeDocs.length > 1 && (
             <div className="study-docs">
@@ -170,7 +170,7 @@ function Workspace({ conversation }: { conversation: ConversationDetail }) {
         <div className="study-chat" hidden={narrow && tab !== "chat"}>
           <ChatPanel conversation={conversation} activeKey={target.key} onOpenSource={openSource} />
         </div>
-      </div>
+      </main>
     </div>
   );
 }

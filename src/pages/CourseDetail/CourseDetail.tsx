@@ -26,7 +26,7 @@ export default function CourseDetail() {
 
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 1200, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <nav aria-label="Đường dẫn" className="small muted">
           <Link to={PATH.HOME} className="link-strong">
             Môn học

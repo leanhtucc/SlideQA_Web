@@ -23,7 +23,7 @@ export default function Attempt() {
 
   return (
     <MainLayout>
-      <div className="content" style={{ maxWidth: 820, width: "100%" }}>
+      <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <nav aria-label="Đường dẫn" className="small muted">
           <Link to={PATH.QUIZZES} className="link-strong">
             Quiz
