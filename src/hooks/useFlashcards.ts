@@ -14,3 +14,4 @@ export const useCreateFlashcard = () => useMutation({ mutationFn: api.createFlas
 export const useDeleteFlashcard = () => useMutation({ mutationFn: api.deleteFlashcard, onSuccess: useRefresh() });
 export const useReviewFlashcard = () => useMutation({ mutationFn: ({ id, result }: { id: string; result: "remember" | "forgot" }) => api.reviewFlashcard(id, result) });
 export const useFlashcardsFromAttempt = () => useMutation({ mutationFn: api.flashcardsFromAttempt, onSuccess: useRefresh() });
+export const useFlashcardsFromDocument = () => useMutation({ mutationFn: api.flashcardsFromDocument, onSuccess: useRefresh() });

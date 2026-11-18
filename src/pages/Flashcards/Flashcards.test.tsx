@@ -43,14 +43,14 @@ describe("thẻ ghi nhớ", () => {
     });
     renderApp("/app/flashcards");
     await userEvent.click(await screen.findByRole("button", { name: "Bắt đầu ôn" }));
-    expect(screen.getByRole("heading", { name: "Câu 1?" })).toBeInTheDocument();
-    expect(screen.queryByText("Đáp án 1")).not.toBeInTheDocument();
+    expect(screen.getByText("Câu 1?")).toBeInTheDocument();
+    expect(screen.getByText("Đáp án 1").closest(".flip-face")).toHaveAttribute("aria-hidden", "true"); // mặt sau ẩn khi chưa lật
 
     await userEvent.click(screen.getByRole("button", { name: "Xem đáp án" }));
-    expect(screen.getByText("Đáp án 1")).toBeInTheDocument();
+    expect(screen.getByText("Đáp án 1").closest(".flip-face")).toHaveAttribute("aria-hidden", "false");
     await userEvent.click(screen.getByRole("button", { name: "Nhớ" }));
 
-    expect(await screen.findByRole("heading", { name: "Câu 2?" })).toBeInTheDocument();
+    expect(await screen.findByText("Câu 2?")).toBeInTheDocument();
     await userEvent.click(screen.getByRole("button", { name: "Xem đáp án" }));
     await userEvent.click(screen.getByRole("button", { name: "Quên" }));
 
@@ -61,6 +61,48 @@ describe("thẻ ghi nhớ", () => {
     ]);
   });
 
+  it("phím tắt: Space lật thẻ, mũi tên phải là Nhớ, mũi tên trái là Quên", async () => {
+    const api = backend([card(1), card(2)], {
+      "POST /flashcards/f1/review": () => ({ json: card(1) }),
+      "POST /flashcards/f2/review": () => ({ json: card(2) }),
+    });
+    renderApp("/app/flashcards");
+    await userEvent.click(await screen.findByRole("button", { name: "Bắt đầu ôn" }));
+    await userEvent.keyboard("{ArrowRight}"); // chưa lật thì chưa chấm
+    expect(api.count("POST /flashcards/f1/review")).toBe(0);
+    await userEvent.keyboard(" ");
+    await userEvent.keyboard("{ArrowRight}");
+    expect(await screen.findByText("Câu 2?")).toBeInTheDocument();
+    await userEvent.keyboard(" ");
+    await userEvent.keyboard("{ArrowLeft}");
+    expect(await screen.findByText(/nhớ 1, quên 1/)).toBeInTheDocument();
+    expect(api.calls.filter((c) => c.path.endsWith("/review")).map((c) => c.body)).toEqual([{ result: "remember" }, { result: "forgot" }]);
+  });
+
+  it("tạo thẻ từ tài liệu: gửi tài liệu, khoảng trang và số thẻ đã chọn", async () => {
+    const doc = { id: "d1", courseId: "c1", name: "Slide BPMN.pdf", status: "ready", pages: 12, sizeBytes: 1000, createdAt: "2026-11-01T00:00:00Z", error: null, warning: null };
+    const api = backend([], {
+      "GET /me": () => ({ json: { ...USER, llmConsentAt: "2026-11-01T00:00:00Z" } }),
+      "GET /documents": () => ({ json: [doc] }),
+      "GET /courses": () => ({ json: [] }),
+      "POST /flashcards/from-document": () => ({ status: 201, json: { created: 8, skipped: 2 } }),
+    });
+    renderApp("/app/flashcards");
+    await userEvent.click(await screen.findByRole("button", { name: "Tạo từ tài liệu" }));
+    await userEvent.type(await screen.findByLabelText("Từ trang"), "2");
+    await userEvent.type(screen.getByLabelText("Đến trang"), "20");
+    await userEvent.click(screen.getByRole("button", { name: "Tạo thẻ" }));
+    expect(await screen.findByText("Tài liệu chỉ có 12 trang.")).toBeInTheDocument(); // chặn ở FE, chưa gọi API
+    expect(api.count("POST /flashcards/from-document")).toBe(0);
+
+    await userEvent.clear(screen.getByLabelText("Đến trang"));
+    await userEvent.type(screen.getByLabelText("Đến trang"), "6");
+    await userEvent.click(screen.getByRole("radio", { name: "15 thẻ" }));
+    await userEvent.click(screen.getByRole("button", { name: "Tạo thẻ" }));
+    await waitFor(() => expect(api.count("POST /flashcards/from-document")).toBe(1));
+    expect(api.calls.find((c) => c.path === "/flashcards/from-document")?.body).toEqual({ documentId: "d1", count: 15, fromPage: 2, toPage: 6 });
+  });
+
   it("lỗi khi lưu kết quả: báo lỗi và ở lại thẻ hiện tại", async () => {
     backend([card(1)], { "POST /flashcards/f1/review": () => err(503, "unavailable", "Máy chủ đang bận.") });
     renderApp("/app/flashcards");
@@ -68,7 +110,7 @@ describe("thẻ ghi nhớ", () => {
     await userEvent.click(screen.getByRole("button", { name: "Xem đáp án" }));
     await userEvent.click(screen.getByRole("button", { name: "Nhớ" }));
     expect(await screen.findByText("Máy chủ đang bận.")).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: "Câu 1?" })).toBeInTheDocument();
+    expect(screen.getByText("Câu 1?")).toBeInTheDocument();
   });
 
   it("không có thẻ: hiện trạng thái trống; thêm thẻ thủ công gửi đúng nội dung", async () => {

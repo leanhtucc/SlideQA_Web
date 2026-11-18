@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { ApiError } from "src/apis/client";
 import Alert from "src/components/Alert/Alert";
 import Button from "src/components/Button/Button";
+import FlipCard from "src/components/FlipCard/FlipCard";
 import { SkeletonList } from "src/components/Loading/Loading";
 import Modal from "src/components/Modal/Modal";
 import { EmptyState, ErrorState } from "src/components/State/State";
@@ -10,6 +11,7 @@ import { formatDayMonthFromIso } from "src/helpers/format";
 import { toast } from "src/helpers/toast";
 import { useCreateFlashcard, useDeleteFlashcard, useFlashcards, useReviewFlashcard } from "src/hooks/useFlashcards";
 import MainLayout from "src/layouts/MainLayout";
+import FromDocumentModal from "./FromDocumentModal";
 
 const isDue = (c: Flashcard) => new Date(c.dueAt).getTime() <= Date.now();
 
@@ -27,6 +29,7 @@ export default function Flashcards() {
   const list = useFlashcards();
   const [reviewing, setReviewing] = useState<Flashcard[] | null>(null);
   const [adding, setAdding] = useState(false);
+  const [importing, setImporting] = useState(false);
   const cards = list.data ?? [];
   const due = cards.filter(isDue);
 
@@ -35,9 +38,14 @@ export default function Flashcards() {
       <div className="content" style={{ maxWidth: 1080, width: "100%" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
           <h1 className="h1">Thẻ ghi nhớ</h1>
-          <button className="btn btn-secondary" onClick={() => setAdding(true)}>
-            Thêm thẻ
-          </button>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button className="btn btn-primary" onClick={() => setImporting(true)}>
+              Tạo từ tài liệu
+            </button>
+            <button className="btn btn-secondary" onClick={() => setAdding(true)}>
+              Thêm thẻ
+            </button>
+          </div>
         </div>
         {list.isPending && <SkeletonList rows={3} label="Đang tải thẻ" />}
         {list.error && <ErrorState error={list.error} message="Không tải được thẻ ghi nhớ." onRetry={() => list.refetch()} retrying={list.isRefetching} />}
@@ -62,13 +70,14 @@ export default function Flashcards() {
               </Button>
             </div>
             {cards.length === 0 ? (
-              <EmptyState art="quiz" title="Chưa có thẻ nào" message="Tạo thẻ từ các câu quiz làm sai, từ câu trả lời của trợ lý, hoặc bấm Thêm thẻ." />
+              <EmptyState art="quiz" title="Chưa có thẻ nào" message="Bấm Tạo từ tài liệu để AI soạn sẵn nhiều thẻ từ slide của bạn, hoặc tạo thẻ từ câu quiz làm sai và câu trả lời của trợ lý." />
             ) : (
               <CardList cards={cards} />
             )}
           </>
         )}
       </div>
+      <FromDocumentModal open={importing} onClose={() => setImporting(false)} />
       <Modal open={adding} onClose={() => setAdding(false)} title="Thêm thẻ">
         <AddForm onClose={() => setAdding(false)} />
       </Modal>
@@ -80,26 +89,16 @@ function Review({ cards, onDone }: { cards: Flashcard[]; onDone: () => void }) {
   const review = useReviewFlashcard();
   const [idx, setIdx] = useState(0);
   const [shown, setShown] = useState(false);
+  const [remembered, setRemembered] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const card = cards[idx];
 
-  if (!card) {
-    return (
-      <div className="card card-pad stack" role="status" style={{ gap: 12 }}>
-        <h2 className="h2">Xong rồi!</h2>
-        <p className="muted">Bạn đã ôn hết {cards.length} thẻ hôm nay. Thẻ nhớ sẽ quay lại thưa dần, thẻ quên quay lại sau 1 ngày.</p>
-        <Button onClick={onDone} style={{ alignSelf: "flex-start" }}>
-          Về danh sách thẻ
-        </Button>
-      </div>
-    );
-  }
-
   async function rate(result: "remember" | "forgot") {
-    if (!card) return;
+    if (!card || review.isPending) return;
     setError(null);
     try {
       await review.mutateAsync({ id: card.id, result });
+      if (result === "remember") setRemembered((n) => n + 1);
       setShown(false);
       setIdx(idx + 1);
     } catch (e) {
@@ -107,37 +106,81 @@ function Review({ cards, onDone }: { cards: Flashcard[]; onDone: () => void }) {
     }
   }
 
-  return (
-    <section className="card card-pad stack" aria-label="Ôn thẻ" style={{ gap: 16 }}>
-      <div className="small muted" aria-live="polite">
-        Thẻ {idx + 1} / {cards.length}
+  // Phím tắt: Space/Enter lật (khi chưa focus nút nào), ← hoặc 1 là Quên, → hoặc 2 là Nhớ (sau khi lật).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null;
+      if (e.ctrlKey || e.metaKey || e.altKey || t?.closest("input,textarea,select,[contenteditable],dialog")) return;
+      if ((e.key === " " || e.key === "Enter") && !t?.closest("button,a")) {
+        e.preventDefault();
+        setShown((s) => !s);
+      } else if (shown && (e.key === "ArrowLeft" || e.key === "1")) void rate("forgot");
+      else if (shown && (e.key === "ArrowRight" || e.key === "2")) void rate("remember");
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
+  if (!card) {
+    return (
+      <div className="card card-pad stack" role="status" style={{ gap: 12 }}>
+        <h2 className="h2">Xong rồi!</h2>
+        <p className="muted">
+          Bạn đã ôn hết {cards.length} thẻ hôm nay: nhớ {remembered}, quên {cards.length - remembered}. Thẻ nhớ sẽ quay lại thưa dần, thẻ quên quay lại sau 1 ngày.
+        </p>
+        <Button onClick={onDone} style={{ alignSelf: "flex-start" }}>
+          Về danh sách thẻ
+        </Button>
       </div>
-      <h2 className="h2" style={{ whiteSpace: "pre-wrap" }}>
-        {card.front}
-      </h2>
-      {error && <Alert>{error}</Alert>}
-      {!shown ? (
-        <button className="btn btn-primary" style={{ alignSelf: "flex-start" }} onClick={() => setShown(true)}>
-          Xem đáp án
+    );
+  }
+
+  return (
+    <section className="stack" aria-label="Ôn thẻ" style={{ gap: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+        <div className="small muted" aria-live="polite">
+          Thẻ {idx + 1} / {cards.length}
+        </div>
+        <button type="button" className="btn btn-ghost btn-sm" onClick={onDone}>
+          Dừng ôn
         </button>
-      ) : (
-        <>
-          <div role="status">
-            <Alert kind="info">
-              <span style={{ whiteSpace: "pre-wrap" }}>{card.back}</span>
-              {card.page !== null && <span className="muted"> (slide trang {card.page})</span>}
-            </Alert>
-          </div>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+      </div>
+      <div className="review-progress" role="progressbar" aria-label="Tiến độ ôn" aria-valuemin={0} aria-valuemax={cards.length} aria-valuenow={idx}>
+        <span style={{ width: `${(idx / cards.length) * 100}%` }} />
+      </div>
+      <FlipCard
+        front={card.front}
+        back={card.back}
+        flipped={shown}
+        onFlip={() => setShown((s) => !s)}
+        backNote={card.page !== null ? `slide trang ${card.page}` : null}
+      />
+      {error && <Alert>{error}</Alert>}
+      {/* Giữ chiều cao cố định để nút không nhảy vị trí khi lật thẻ. */}
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", minHeight: 48 }}>
+        {!shown ? (
+          <>
+            <button className="btn btn-primary" onClick={() => setShown(true)}>
+              Xem đáp án
+            </button>
+            <span className="small muted" aria-hidden="true">
+              hoặc bấm thẻ, nhấn <span className="kbd">Space</span>
+            </span>
+          </>
+        ) : (
+          <>
             <Button variant="secondary" disabled={review.isPending} onClick={() => rate("forgot")}>
               Quên
             </Button>
             <Button variant="primary" disabled={review.isPending} onClick={() => rate("remember")}>
               Nhớ
             </Button>
-          </div>
-        </>
-      )}
+            <span className="small muted" aria-hidden="true">
+              <span className="kbd">←</span> quên · <span className="kbd">→</span> nhớ
+            </span>
+          </>
+        )}
+      </div>
     </section>
   );
 }

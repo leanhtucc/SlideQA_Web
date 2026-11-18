@@ -16,3 +16,10 @@ interface FlashcardInput {
   page?: number;
   documentId?: string;
 }
+
+interface FlashcardsFromDocumentInput {
+  documentId: string;
+  fromPage?: number;
+  toPage?: number;
+  count: number;
+}
